@@ -16,4 +16,3 @@ bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
 
 from HouseListingSystem import routes
-
