@@ -6,7 +6,8 @@ from flask_login import current_user
 
 
 class RegisterForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired(message="Please enter Username."), Length(min=5, max=20)])
+    username = StringField('Username', validators=[DataRequired(message="Please enter Username."),
+                                                   Length(min=5, max=20, message='Password should have min 5 & max 20 charcters')])
     name = StringField('Name', validators=[DataRequired(message="Please enter name"), Length(min=2, max=25)])
     contact = StringField('Contact no', validators=[DataRequired(message="Please enter contact"),
                                                     Length(min=10, max=10, message='Contact should be of 10 digits')])
@@ -73,11 +74,11 @@ class ResetPasswordRequestForm(FlaskForm):
 
 
 class ResetPasswordForm(FlaskForm):
-    password = PasswordField('Password', validators=[DataRequired(message="Please enter password"), Length(min=5, max=20)])
+    password = PasswordField('Password', validators=[DataRequired(message="Please enter password"),
+                                                     Length(min=5, max=20, message='Password should have min 5 & max 20 charcters')])
     confirm_password = PasswordField('Confirm Password',
                                      validators=[DataRequired(message="Please enter confirm password"),
-                                                 EqualTo('password',
-                                                         message="Confirm password does not match with password")])
+                                                 EqualTo('password', message="Confirm password does not match with password")])
     submit = SubmitField('Reset Password')
 
     # def validate_password(self, password):
