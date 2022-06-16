@@ -1,8 +1,9 @@
 from flask import render_template, redirect, flash, url_for
 from HouseListingSystem import app, db, bcrypt
 from HouseListingSystem.models import User
-from HouseListingSystem.forms import RegisterForm, LoginForm, ResetPasswordRequestForm, ResetPasswordForm
-from flask_login import login_user, current_user, logout_user
+from HouseListingSystem.forms import (RegisterForm, LoginForm,
+ResetPasswordRequestForm, ResetPasswordForm, UpdateAccountForm)
+from flask_login import login_user, current_user, logout_user, login_required
 from HouseListingSystem.email import send_mail
 
 
@@ -53,6 +54,7 @@ def post_property():
 @app.route('/logout')
 def logout():
     logout_user()
+    flash('Log Out Successfully', 'success')
     return redirect(url_for('login'))
 
 # def send_password_reset_email(user):
@@ -89,3 +91,36 @@ def reset_password(token):
         flash(f"Your password has been reset! Now you can login", 'success')
         return redirect(url_for('login'))
     return render_template('reset_password.html', title='Reset Password', form=form)
+
+
+@login_required
+@app.route('/ViewAccount')
+def view_account():
+    return render_template('view_account.html')
+
+
+@app.route('/UpdateAccount', methods=['POST', 'GET'])
+def update_account():
+    form = UpdateAccountForm()
+    if form.validate_on_submit():
+        current_user.username = form.username.data
+        current_user.name = form.name.data
+        current_user.email = form.email.data
+        current_user.contact = form.contact.data
+        db.session.commit()
+        flash('Your account has been updated.', 'success')
+        return redirect(url_for('view_account'))
+    else:
+        form.username.data = current_user.username
+        form.name.data = current_user.name
+        form.email.data = current_user.email
+        form.contact.data = current_user.contact
+    return render_template('update_account.html', form=form)
+
+@app.route('/DeleteAccount')
+def delete_account():
+    user = current_user
+    db.session.delete(user)
+    db.session.commit()
+    flash('Account deleted successfully!', 'success')
+    return redirect(url_for('register'))
