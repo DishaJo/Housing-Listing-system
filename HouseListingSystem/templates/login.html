@@ -28,6 +28,9 @@
           {% else %}
           {{ form.password(class="form-control") }}
           {% endif %}<br>
+          {{ form.remember(class="form-check-input") }}
+          {{ form.remember.label(class="form-check-label") }}
+          <br>
           <p><a href="{{ url_for('reset_password_request' )}}">Forgot password?</a></p>
           {{ form.submit(class="btn btn-outline-info ") }}
           <br>

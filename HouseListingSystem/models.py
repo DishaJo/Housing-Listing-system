@@ -11,18 +11,20 @@ def load_user(user_id):
 
 class User(db.Model, UserMixin):
     user_id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(20), unique=True, nullable=False)
     name = db.Column(db.String(40), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     contact = db.Column(db.String(10), unique=True, nullable=False)
     password = db.Column(db.String(60), nullable=False)
+    user_image = db.Column(db.String(20), nullable=False, default='default.jpg')
 
     def get_id(self):
         return (self.user_id)
 
     def __repr__(self):
-        return f"User('{self.name}','{self.email}','{self.contact}')"
+        return f"User('{self.username}','{self.name}','{self.email}','{self.contact}','{self.user_image}')"
 
-    def get_reset_password_token(self, expires_in = 600):
+    def get_reset_password_token(self, expires_in=600):
         return jwt.encode({'reset_password': self.user_id, 'exp': time() + expires_in},
                           app.config['SECRET_KEY'], algorithm='HS256').decode('utf-8')
 

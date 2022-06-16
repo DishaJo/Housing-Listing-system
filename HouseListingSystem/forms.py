@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, EmailField, ValidationError, SubmitField
-from wtforms.validators import DataRequired, Length, EqualTo, Regexp
+from wtforms import StringField, PasswordField, EmailField, ValidationError, SubmitField, BooleanField
+from wtforms.validators import DataRequired, Length, EqualTo
 from HouseListingSystem.models import User
 
 
@@ -22,7 +22,8 @@ from HouseListingSystem.models import User
 
 
 class RegisterForm(FlaskForm):
-    name = StringField('Name', validators=[DataRequired(message="Please enter name"), Length(min=2, max=15)])
+    username = StringField('Username', validators=[DataRequired(message="Please enter Username."), Length(min=5, max=20)])
+    name = StringField('Name', validators=[DataRequired(message="Please enter name"), Length(min=2, max=25)])
     contact = StringField('Contact no', validators=[DataRequired(message="Please enter contact"), Length(max=10)])
     email = EmailField('EmailID', validators=[DataRequired(message="Please enter email"), Length(max=120)])
     password = PasswordField('Password', validators=[DataRequired(message="Please enter password")])
@@ -31,6 +32,11 @@ class RegisterForm(FlaskForm):
                                                  EqualTo('password',
                                                          message="Confirm password does not match with password")])
     submit = SubmitField('Submit')
+
+    def validate_username(self, username):
+        user = User.query.filter_by(username=username.data).first()
+        if user:
+            raise ValidationError('This username is already taken.')
 
     def validate_contact(self, contact):
         if not contact.data.isdigit():
@@ -48,6 +54,7 @@ class RegisterForm(FlaskForm):
 class LoginForm(FlaskForm):
     email = EmailField('Email', validators=[DataRequired(message="Please enter email"), Length(max=120)])
     password = PasswordField('Password', validators=[DataRequired(message="Please enter password"), Length(max=20)])
+    remember = BooleanField('Remember Me')
     submit = SubmitField('Log In')
 
 
