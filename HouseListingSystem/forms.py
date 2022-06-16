@@ -75,7 +75,7 @@ class ResetPasswordRequestForm(FlaskForm):
 
 class ResetPasswordForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired(message="Please enter password"),
-                                                     Length(min=5, max=20, message='Password should have min 5 & max 20 charcters')])
+                                                     Length(min=6, max=20, message='Password should have min 6 & max 20 charcters')])
     confirm_password = PasswordField('Confirm Password',
                                      validators=[DataRequired(message="Please enter confirm password"),
                                                  EqualTo('password', message="Confirm password does not match with password")])
