@@ -9,7 +9,7 @@
                     <div class="form-group">
                         {{ form.city.label }}
                         {% if form.city.errors %}
-                            {{ form.city(class="form-control form-control-lg is-invalid") }}
+                            {{ form.city(class="form-control is-invalid") }}
                             <div class="invalid-feedback">
                                 {% for error in form.city.errors %}
                                     <span>{{ error }}</span>
@@ -19,10 +19,11 @@
                             {{ form.city(class="form-control") }}
                         {% endif %}
                     </div>
+                    <br>
                     <div class="form-group">
                         {{ form.locality.label }}
                         {% if form.locality.errors %}
-                            {{ form.locality(class="form-control form-control-lg is-invalid") }}
+                            {{ form.locality(class="form-control is-invalid") }}
                             <div class="invalid-feedback">
                                 {% for error in form.locality.errors %}
                                     <span>{{ error }}</span>
@@ -32,10 +33,11 @@
                             {{ form.locality(class="form-control") }}
                         {% endif %}
                     </div>
+                    <br>
                     <div class="form-group">
                         {{ form.address.label }}
                         {% if form.address.errors %}
-                            {{ form.address(class="form-control form-control-lg is-invalid") }}
+                            {{ form.address(class="form-control is-invalid") }}
                             <div class="invalid-feedback">
                                 {% for error in form.address.errors %}
                                     <span>{{ error }}</span>
@@ -45,10 +47,11 @@
                             {{ form.address(class="form-control") }}
                         {% endif %}
                     </div>
+                    <br>
                     <div class="form-group">
                         {{ form.property_type.label }}
                         {% if form.property_type.errors %}
-                            {{ form.property_type(class="form-control form-control-lg is-invalid") }}
+                            {{ form.property_type(class="form-control is-invalid") }}
                             <div class="invalid-feedback">
                                 {% for error in form.property_type.errors %}
                                     <span>{{ error }}</span>
@@ -58,7 +61,7 @@
                             {{ form.property_type(class="form-control") }}
                         {% endif %}
                     </div>
-
+                    <br>
                     <div class="form-group">
                         {{ form.bhk.label }}
                         {% if form.bhk.errors %}
@@ -72,7 +75,7 @@
                             {{ form.bhk(class="form-control") }}
                         {% endif %}
                     </div>
-
+                    <br>
                     <div class="form-group">
                         {{ form.size.label }}
                         {% if form.size.errors %}
@@ -86,7 +89,7 @@
                             {{ form.size(class="form-control") }}
                         {% endif %}
                     </div>
-
+                    <br>
                     <div class="form-group">
                         {{ form.price.label }}
                         {% if form.price.errors %}
@@ -99,9 +102,6 @@
                         {% else %}
                             {{ form.price(class="form-control") }}
                         {% endif %}
-                    </div>
-
-                    <div class="form-group">
                         {% if form.extension.errors %}
                             {{ form.extension(class="form-control is-invalid") }}
                             <div class="invalid-feedback">
@@ -113,7 +113,6 @@
                             {{ form.extension(class="form-control") }}
                         {% endif %}
                     </div>
-                    <br>
                 </fieldset>
                 <br>
                 <div>

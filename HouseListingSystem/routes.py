@@ -2,7 +2,8 @@ from flask import render_template, redirect, flash, url_for
 from HouseListingSystem import app, db, bcrypt
 from HouseListingSystem.models import User, House
 from HouseListingSystem.forms import (RegisterForm, LoginForm,
-                                      ResetPasswordRequestForm, ResetPasswordForm, UpdateAccountForm, PostSellHouseForm)
+                                      ResetPasswordRequestForm, ResetPasswordForm,
+                                      UpdateAccountForm, PostSellHouseForm, PostRentHouseForm)
 from flask_login import login_user, current_user, logout_user, login_required
 from HouseListingSystem.email import send_mail
 
@@ -132,3 +133,18 @@ def sell_house():
         db.session.commit()
         flash('House posted successfully', 'success')
     return render_template('sell_house.html', title='Sell House', form=form)
+
+
+@app.route('/RentHouse', methods=['GET', 'POST'])
+@login_required
+def rent_house():
+    form = PostRentHouseForm()
+    if form.validate_on_submit():
+        post_type = 'Rent'
+        rent_per_month = form.rent_per_month.data + form.extension.data
+        house = House(post_type=post_type, user=current_user, city=form.city.data, locality=form.locality.data, address=form.address.data,
+                      bhk=form.bhk.data, property_type=form.property_type.data, rent_per_month=rent_per_month, size_sqft=form.size.data)
+        db.session.add(house)
+        db.session.commit()
+        flash('House posted successfully', 'success')
+    return render_template('rent_house.html', title='Rent House', form=form)

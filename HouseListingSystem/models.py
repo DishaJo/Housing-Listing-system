@@ -42,7 +42,7 @@ class User(db.Model, UserMixin):
 class House(db.Model):
     house_id = db.Column(db.Integer, primary_key=True)
     post_type = db.Column(db.String(20), nullable=False)
-    bhk = db.Column(db.Integer, nullable=False)
+    bhk = db.Column(db.String(20), nullable=False)
     city = db.Column(db.String(25), nullable=False)
     locality = db.Column(db.String(30), nullable=False)
     address = db.Column(db.Text, nullable=False)

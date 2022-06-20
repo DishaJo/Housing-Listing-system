@@ -145,3 +145,13 @@ class PostSellHouseForm(FlaskForm):
     submit = SubmitField('Submit')
 
 
+class PostRentHouseForm(FlaskForm):
+    property_type = SelectField('Property_type', choices=['Flat', 'Independent House'])
+    city = StringField('City', validators=[DataRequired(), Length(max=50)])
+    locality = StringField('Locality', validators=[DataRequired(), Length(max=100)])
+    address = StringField('Address', validators=[DataRequired(), Length(max=500)])
+    bhk = SelectField('BHK', choices=['1', '2', '3', '4', '5+'])
+    rent_per_month = StringField('Rent Per Month', validators=[DataRequired(), Length(max=10)])
+    extension = SelectField(choices=['Thousand', 'Lakh'])
+    size = StringField('Size', validators=[DataRequired(), Length(max=10)])
+    submit = SubmitField('Submit')
