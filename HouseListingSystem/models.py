@@ -1,6 +1,7 @@
 from HouseListingSystem import app, db, login_manager
 from flask_login import UserMixin
 from time import time
+from datetime import datetime
 import jwt
 
 
@@ -17,6 +18,8 @@ class User(db.Model, UserMixin):
     contact = db.Column(db.String(10), unique=True, nullable=False)
     password = db.Column(db.String(60), nullable=False)
     user_image = db.Column(db.String(20), nullable=False, default='default.jpg')
+    house_post = db.relationship('House', backref='user', lazy=True)
+
 
     def get_id(self):
         return (self.user_id)
@@ -35,3 +38,22 @@ class User(db.Model, UserMixin):
         except:
             return
         return User.query.get(user_id)
+
+
+class House(db.Model):
+    house_id = db.Column(db.Integer, primary_key=True)
+    post_type = db.Column(db.String(20), nullable=False)
+    bhk = db.Column(db.Integer, nullable=False)
+    city = db.Column(db.String(25), nullable=False)
+    locality = db.Column(db.String(30), nullable=False)
+    address = db.Column(db.Text, nullable=False)
+    property_type = db.Column(db.String(20), nullable=False)
+    size_sqft = db.Column(db.String(20), nullable=False)
+    price = db.Column(db.String(20))
+    rent_per_month = db.Column(db.String(20))
+    date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    verified = db.Column(db.String, nullable=False, default='No')
+    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
+
+    def __repr__(self):
+        return f"House('{self.house_id}','{self.post_type}','{self.property_type}','{self.user_id}','{self.city}')"

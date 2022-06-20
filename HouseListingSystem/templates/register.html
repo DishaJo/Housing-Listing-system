@@ -64,7 +64,7 @@
                     <div class="form-group">
                         {{ form.password.label }}
                         {% if form.password.errors %}
-                            {{ form.password(class="form-control s-invalid") }}
+                            {{ form.password(class="form-control is-invalid") }}
                             <div class="invalid-feedback">
                                 {% for error in form.password.errors %}
                                     <span>{{ error }}</span>
