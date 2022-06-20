@@ -1,5 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, EmailField, ValidationError, SubmitField, BooleanField
+from wtforms import (StringField, PasswordField, EmailField, ValidationError,
+                     SubmitField, BooleanField, SelectField)
 from wtforms.validators import DataRequired, Length, EqualTo
 from HouseListingSystem.models import User
 from flask_login import current_user
@@ -130,3 +131,17 @@ class UpdateAccountForm(FlaskForm):
             user = User.query.filter_by(email=contact.data).first()
             if user:
                 raise ValidationError('This contact no. is already registered.')
+
+
+class PostSellHouseForm(FlaskForm):
+    property_type = SelectField('Property_type', choices=['Flat', 'Independent House'])
+    city = StringField('City', validators=[DataRequired(), Length(max=50)])
+    locality = StringField('Locality', validators=[DataRequired(), Length(max=100)])
+    address = StringField('Address', validators=[DataRequired(), Length(max=500)])
+    bhk = SelectField('BHK', choices=['1', '2', '3', '4', '5+'])
+    price = StringField('Price', validators=[DataRequired(), Length(max=10)])
+    extension = SelectField(choices=['Thousand', 'Lakh', 'Corer'])
+    size = StringField('Size', validators=[DataRequired(), Length(max=10)])
+    submit = SubmitField('Submit')
+
+

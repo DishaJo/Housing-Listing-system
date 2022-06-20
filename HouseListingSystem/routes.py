@@ -1,8 +1,8 @@
 from flask import render_template, redirect, flash, url_for
 from HouseListingSystem import app, db, bcrypt
-from HouseListingSystem.models import User
+from HouseListingSystem.models import User, House
 from HouseListingSystem.forms import (RegisterForm, LoginForm,
-ResetPasswordRequestForm, ResetPasswordForm, UpdateAccountForm)
+                                      ResetPasswordRequestForm, ResetPasswordForm, UpdateAccountForm, PostSellHouseForm)
 from flask_login import login_user, current_user, logout_user, login_required
 from HouseListingSystem.email import send_mail
 
@@ -19,9 +19,9 @@ def home():
 def register():
     form = RegisterForm()
     if form.validate_on_submit():
-        check = User.query.filter_by(email=form.email.data).first()
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        user = User(username=form.username.data, name=form.name.data, contact=form.contact.data, email=form.email.data, password=hashed_password)
+        user = User(username=form.username.data, name=form.name.data, contact=form.contact.data, email=form.email.data,
+                    password=hashed_password)
         db.session.add(user)
         db.session.commit()
         flash(f"Registered successful ! Now you can login", 'success')
@@ -46,22 +46,14 @@ def login():
     return render_template('login.html', title="LogIn", form=form)
 
 
-@app.route('/PostProperty')
-def post_property():
-    return "PostProperty"
-
-
 @app.route('/logout')
 def logout():
     logout_user()
     flash('Log Out Successfully', 'success')
     return redirect(url_for('login'))
 
-# def send_password_reset_email(user):
-#     pass
 
-
-@app.route('/ResetPasswordRequest', methods=['GET','POST'])
+@app.route('/ResetPasswordRequest', methods=['GET', 'POST'])
 def reset_password_request():
     if current_user.is_authenticated:
         return redirect(url_for('home'))
@@ -117,6 +109,7 @@ def update_account():
         form.contact.data = current_user.contact
     return render_template('update_account.html', form=form)
 
+
 @app.route('/DeleteAccount')
 def delete_account():
     user = current_user
@@ -124,3 +117,18 @@ def delete_account():
     db.session.commit()
     flash('Account deleted successfully!', 'success')
     return redirect(url_for('register'))
+
+
+@app.route('/SellHouse', methods=['GET', 'POST'])
+@login_required
+def sell_house():
+    form = PostSellHouseForm()
+    if form.validate_on_submit():
+        post_type = 'Sell'
+        price = form.price.data + form.extension.data
+        house = House(post_type=post_type, user=current_user, city=form.city.data, locality=form.locality.data, address=form.address.data,
+                      bhk=form.bhk.data, property_type=form.property_type.data, price=price, size_sqft=form.size.data)
+        db.session.add(house)
+        db.session.commit()
+        flash('House posted successfully', 'success')
+    return render_template('sell_house.html', title='Sell House', form=form)
