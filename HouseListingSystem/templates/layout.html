@@ -36,7 +36,7 @@
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="{{url_for('view_account')}}">View Account</a></li>
               <li><a class="dropdown-item" href="#">Favourites</a></li>
-              <li><a class="dropdown-item" href="#">Posts</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('my_posts') }}">Posts</a></li>
             </ul>
           </div>
 <!--          <li class="nav-item"><a href="{{ url_for('logout')}}" class="nav-link link-dark px-2">Hi {{ current_user.name }}</a></li>-->

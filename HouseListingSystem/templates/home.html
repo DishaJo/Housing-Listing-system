@@ -1,4 +1,21 @@
 {% extends "layout.html" %}
 {% block content %}
-<p>Home page</p>
+<div class="container">
+    <div class="col-md-8">
+        {% for house in results %}
+        <div class="list-group list-group d-grid gap-2 border-0 w-auto posts">
+            <label class="list-group-item rounded-3 py-3">
+                <h5>{{ house.bhk }} BHK {{ house.property_type }} for {{ house.post_type }} in {{ house.locality }}, {{ house.city }}</h5>
+                {% if house.post_type == 'Rent' %}
+                <p>Rent Per Month : {{ house.rent_per_month }}</p>
+                {% else %}
+                <p>Price : {{ house.price }}</p>
+                {% endif %}
+                <a href="{{ url_for('house_post', house_id=house.house_id) }}" class="btn btn-info">View More</a>
+            </label>
+        </div>
+        <br>
+        {% endfor %}
+    </div>
+</div>
 {% endblock content %}

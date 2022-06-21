@@ -8,12 +8,14 @@ from flask_login import current_user
 
 class RegisterForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(message="Please enter Username."),
-                                                   Length(min=5, max=20, message='Password should have min 5 & max 20 charcters')])
+                                                   Length(min=5, max=20,
+                                                          message='Password should have min 5 & max 20 charcters')])
     name = StringField('Name', validators=[DataRequired(message="Please enter name"), Length(min=2, max=25)])
     contact = StringField('Contact no', validators=[DataRequired(message="Please enter contact"),
                                                     Length(min=10, max=10, message='Contact should be of 10 digits')])
     email = EmailField('EmailID', validators=[DataRequired(message="Please enter email"), Length(max=120)])
-    password = PasswordField('Password', validators=[DataRequired(message="Please enter password"), Length(min=6, max=20)])
+    password = PasswordField('Password',
+                             validators=[DataRequired(message="Please enter password"), Length(min=6, max=20)])
     confirm_password = PasswordField('Confirm Password',
                                      validators=[DataRequired(message="Please enter confirm password"),
                                                  EqualTo('password',
@@ -76,10 +78,12 @@ class ResetPasswordRequestForm(FlaskForm):
 
 class ResetPasswordForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired(message="Please enter password"),
-                                                     Length(min=6, max=20, message='Password should have min 6 & max 20 charcters')])
+                                                     Length(min=6, max=20,
+                                                            message='Password should have min 6 & max 20 charcters')])
     confirm_password = PasswordField('Confirm Password',
                                      validators=[DataRequired(message="Please enter confirm password"),
-                                                 EqualTo('password', message="Confirm password does not match with password")])
+                                                 EqualTo('password',
+                                                         message="Confirm password does not match with password")])
     submit = SubmitField('Reset Password')
 
     # def validate_password(self, password):
@@ -122,7 +126,7 @@ class UpdateAccountForm(FlaskForm):
         if email.data != current_user.email:
             user = User.query.filter_by(email=email.data).first()
             if user:
-                raise ValidationError('That email is taken. Please choose a different one.')
+                raise ValidationError('That email is already registered.')
 
     def validate_contact(self, contact):
         if not contact.data.isdigit():
@@ -133,25 +137,19 @@ class UpdateAccountForm(FlaskForm):
                 raise ValidationError('This contact no. is already registered.')
 
 
-class PostSellHouseForm(FlaskForm):
+class PostHouseForm(FlaskForm):
     property_type = SelectField('Property_type', choices=['Flat', 'Independent House'])
     city = StringField('City', validators=[DataRequired(), Length(max=50)])
     locality = StringField('Locality', validators=[DataRequired(), Length(max=100)])
     address = StringField('Address', validators=[DataRequired(), Length(max=500)])
     bhk = SelectField('BHK', choices=['1', '2', '3', '4', '5+'])
-    price = StringField('Price', validators=[DataRequired(), Length(max=10)])
-    extension = SelectField(choices=['Thousand', 'Lakh', 'Corer'])
+    price = StringField('Price', validators=[Length(max=20)])
+    rent_per_month = StringField('Rent Per Month', validators=[Length(max=20)])
     size = StringField('Size', validators=[DataRequired(), Length(max=10)])
     submit = SubmitField('Submit')
 
+    def validate_rent_price(self, rent_per_month, price):
+        if rent_per_month.data == None and price.data == None:
+            raise ValidationError('Please enter amount.')
 
-class PostRentHouseForm(FlaskForm):
-    property_type = SelectField('Property_type', choices=['Flat', 'Independent House'])
-    city = StringField('City', validators=[DataRequired(), Length(max=50)])
-    locality = StringField('Locality', validators=[DataRequired(), Length(max=100)])
-    address = StringField('Address', validators=[DataRequired(), Length(max=500)])
-    bhk = SelectField('BHK', choices=['1', '2', '3', '4', '5+'])
-    rent_per_month = StringField('Rent Per Month', validators=[DataRequired(), Length(max=10)])
-    extension = SelectField(choices=['Thousand', 'Lakh'])
-    size = StringField('Size', validators=[DataRequired(), Length(max=10)])
-    submit = SubmitField('Submit')
+

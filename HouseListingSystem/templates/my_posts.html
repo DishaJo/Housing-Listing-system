@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+    <div class="col-md-8">
+        {% for house in results %}
+        <div class="list-group list-group d-grid gap-2 border-0 w-auto posts">
+        <label class="list-group-item rounded-3 py-3">
+            <h5>{{ house.bhk }} BHK {{ house.property_type }} for {{ house.post_type }} in {{ house.locality }}, {{ house.city }}</h5>
+            <a href="{{ url_for('house_post', house_id=house.house_id) }}" class="btn btn-info">View More</a>
+<!--        <span>{{ house.post_type }}</span>-->
+<!--        <span class="d-block small opacity-50">{{ house.city }}</span>-->
+<!--        <span class="d-block small opacity-50">{{ house.locality }}</span>-->
+<!--        <span class="d-block small opacity-50">{{ house.address }}</span>-->
+
+<!--        <span class="d-block small opacity-50">{{ house.bhk }}</span>-->
+<!--        <span class="d-block small ">{{ house.verified }}</span>-->
+<!--        <span class="d-block small opacity-50">{{ house.user.name }}</span>-->
+<!--        {% if house.post_type == 'Rent' %}-->
+<!--            <span class="d-block small opacity-50">{{ house.rent_per_month }}</span>-->
+<!--        {% else %}-->
+<!--            <span class="d-block small opacity-50">{{ house.price }}</span>-->
+<!--        {% endif %}-->
+        </label>
+    </div>
+        <br>
+        {% endfor %}
+    </div>
+</div>
+{% endblock content %}

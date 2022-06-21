@@ -102,16 +102,6 @@
                         {% else %}
                             {{ form.rent_per_month(class="form-control") }}
                         {% endif %}
-                        {% if form.extension.errors %}
-                            {{ form.extension(class="form-control is-invalid") }}
-                            <div class="invalid-feedback">
-                                {% for error in form.extension.errors %}
-                                    <span>{{ error }}</span>
-                                {% endfor %}
-                            </div>
-                        {% else %}
-                            {{ form.extension(class="form-control") }}
-                        {% endif %}
                     </div>
                 </fieldset>
                 <br>

@@ -15,9 +15,7 @@
 
     </div>
       <div class="col-md-6">
-          <form action="{{url_for('update_account')}}">
-            <input type="submit" value="Update Account" />
-          </form>
+          <a href="{{ url_for('update_account') }}" class="btn btn-info">Update</a>
           <button class='btn btn-danger' onclick="myFunction()">Delete Account</button>
       </div>
   </div>

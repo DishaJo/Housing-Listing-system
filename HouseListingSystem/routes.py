@@ -1,9 +1,9 @@
-from flask import render_template, redirect, flash, url_for
+from flask import render_template, redirect, flash, url_for, request, abort
 from HouseListingSystem import app, db, bcrypt
 from HouseListingSystem.models import User, House
 from HouseListingSystem.forms import (RegisterForm, LoginForm,
                                       ResetPasswordRequestForm, ResetPasswordForm,
-                                      UpdateAccountForm, PostSellHouseForm, PostRentHouseForm)
+                                      UpdateAccountForm, PostHouseForm)
 from flask_login import login_user, current_user, logout_user, login_required
 from HouseListingSystem.email import send_mail
 
@@ -13,7 +13,8 @@ from HouseListingSystem.email import send_mail
 def home():
     if not current_user.is_authenticated:
         return redirect(url_for('login'))
-    return render_template('home.html')
+    results = House.query.all()
+    return render_template('home.html', title='Home Page', results=results)
 
 
 @app.route('/Register', methods=['GET', 'POST'])
@@ -114,19 +115,23 @@ def update_account():
 @app.route('/DeleteAccount')
 def delete_account():
     user = current_user
-    db.session.delete(user)
-    db.session.commit()
-    flash('Account deleted successfully!', 'success')
-    return redirect(url_for('register'))
+    try:
+        db.session.delete(user)
+        db.session.commit()
+        flash('Account deleted successfully!', 'success')
+        return redirect(url_for('register'))
+    except:
+        flash('please delete all house posts first')
+        return redirect(url_for('home'))
 
 
 @app.route('/SellHouse', methods=['GET', 'POST'])
 @login_required
 def sell_house():
-    form = PostSellHouseForm()
+    form = PostHouseForm()
     if form.validate_on_submit():
         post_type = 'Sell'
-        price = form.price.data + form.extension.data
+        price = form.price.data
         house = House(post_type=post_type, user=current_user, city=form.city.data, locality=form.locality.data, address=form.address.data,
                       bhk=form.bhk.data, property_type=form.property_type.data, price=price, size_sqft=form.size.data)
         db.session.add(house)
@@ -138,13 +143,83 @@ def sell_house():
 @app.route('/RentHouse', methods=['GET', 'POST'])
 @login_required
 def rent_house():
-    form = PostRentHouseForm()
+    form = PostHouseForm()
     if form.validate_on_submit():
         post_type = 'Rent'
-        rent_per_month = form.rent_per_month.data + form.extension.data
+        rent_per_month = form.rent_per_month.data
         house = House(post_type=post_type, user=current_user, city=form.city.data, locality=form.locality.data, address=form.address.data,
                       bhk=form.bhk.data, property_type=form.property_type.data, rent_per_month=rent_per_month, size_sqft=form.size.data)
         db.session.add(house)
         db.session.commit()
         flash('House posted successfully', 'success')
     return render_template('rent_house.html', title='Rent House', form=form)
+
+
+@app.route('/MyPosts')
+def my_posts():
+    results = House.query.filter_by(user_id=current_user.user_id)
+    return render_template('my_posts.html', title='My Posts', results=results)
+
+
+@app.route('/HousePost/<int:house_id>')
+@login_required
+def house_post(house_id):
+    house = House.query.get_or_404(house_id)
+    return render_template('house_post.html', house=house)
+
+
+@app.route('/HousePost/<int:house_id>/update', methods=['GET', 'POST'])
+@login_required
+def update_post(house_id):
+    house = House.query.get_or_404(house_id)
+    if house.user != current_user:
+        abort(403)
+    form = PostHouseForm()
+    if form.validate_on_submit():
+        house.bhk = form.bhk.data
+        house.city = form.city.data
+        house.locality = form.locality.data
+        house.address = form.address.data
+        house.size_sqft = form.size.data
+        if house.post_type == 'Rent':
+            house.rent_per_month = form.rent_per_month.data
+        else:
+            house.price = form.price.data
+        db.session.commit()
+        flash('Your house post has been updated!', 'success')
+        return redirect(url_for('house_post', house_id=house.house_id))
+    elif request.method == 'GET':
+        form.bhk.data = house.bhk
+        form.city.data = house.city
+        form.locality.data = house.locality
+        form.address.data = house.address
+        form.size.data = house.size_sqft
+        if house.post_type == 'Rent':
+            form.rent_per_month.data = house.rent_per_month
+        else:
+            form.price.data = house.price
+        house.bhk = form.bhk.data
+        house.city = form.city.data
+        house.locality = form.locality.data
+        house.address = form.address.data
+        if house.post_type == 'Rent':
+            house.rent_per_month = form.rent_per_month.data
+        else:
+            house.price = form.price.data
+    if house.post_type == 'Rent':
+        return render_template('rent_house.html', title='Update House',
+                               form=form, legend='Update House')
+    else:
+        return render_template('sell_house.html', title='Update House',
+                               form=form, legend='Update House')
+
+
+
+@app.route('/HousePost/<int:house_id>/delete')
+@login_required
+def delete_post(house_id):
+    house = House.query.get_or_404(house_id)
+    db.session.delete(house)
+    db.session.commit()
+    flash('House deleted successfully', 'success')
+    return redirect(url_for('my_posts'))
