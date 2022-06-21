@@ -1,30 +1,27 @@
 {%extends "layout.html"%}
 {%block content%}
-<div class="container mt-3">
-  <h4>Account Details</h4>
-  <div class="card">
-    <div class="card-body">
-        <li class="list-group-item list-group-item-primary">Username : {{current_user.username}}</li>
-        <br>
-        <li class="list-group-item list-group-item-primary">Name : {{current_user.name}}</li>
-        <br>
-        <li class="list-group-item list-group-item-primary">Email : {{current_user.email}}</li>
-        <br>
-        <li class="list-group-item list-group-item-primary">Contact : {{current_user.contact}}</li>
-        <br>
-
+    <div class="container mt-3">
+        <h4>Account Details</h4>
+        <div class="card">
+            <div class="card-body">
+                <p>Username : {{current_user.username}}</p>
+                <br>
+                <p>Name : {{current_user.name}}</p>
+                <br>
+                <p>Email : {{current_user.email}}</p>
+                <br>
+                <p>Contact : {{current_user.contact}}</p>
+                <br>
+            </div>
+            <div class="col-md-6">
+                <a href="{{ url_for('update_account') }}" class="btn btn-info">Update</a>
+                <button class='btn btn-danger' onclick="myFunction()">Delete Account</button>
+            </div>
+        </div>
     </div>
-      <div class="col-md-6">
-          <a href="{{ url_for('update_account') }}" class="btn btn-info">Update</a>
-          <button class='btn btn-danger' onclick="myFunction()">Delete Account</button>
-      </div>
-  </div>
-</div>
-<script>
-function myFunction() {
-  confirm("Are you sure you want to delete account?");
-}
 
+<!--Javascript confirm alert-->
+<script>
 function myFunction() {
   let text = "Are you sure you want to delete account?";
   if (confirm(text) == true) {

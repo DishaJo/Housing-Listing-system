@@ -13,7 +13,8 @@ from HouseListingSystem.email import send_mail
 def home():
     if not current_user.is_authenticated:
         return redirect(url_for('login'))
-    results = House.query.all()
+    page = request.args.get('page', 1, type=int)
+    results = House.query.order_by(House.date_posted.desc()).paginate(page=page, per_page=3)
     return render_template('home.html', title='Home Page', results=results)
 
 

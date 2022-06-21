@@ -139,17 +139,19 @@ class UpdateAccountForm(FlaskForm):
 
 class PostHouseForm(FlaskForm):
     property_type = SelectField('Property_type', choices=['Flat', 'Independent House'])
-    city = StringField('City', validators=[DataRequired(), Length(max=50)])
-    locality = StringField('Locality', validators=[DataRequired(), Length(max=100)])
-    address = StringField('Address', validators=[DataRequired(), Length(max=500)])
+    city = StringField('City', validators=[DataRequired(message='Please enter city'), Length(max=50)])
+    locality = StringField('Locality', validators=[DataRequired(message='Please enter locality.'), Length(max=100)])
+    address = StringField('Address', validators=[DataRequired(message='Please enter address.'), Length(max=500)])
     bhk = SelectField('BHK', choices=['1', '2', '3', '4', '5+'])
     price = StringField('Price', validators=[Length(max=20)])
     rent_per_month = StringField('Rent Per Month', validators=[Length(max=20)])
-    size = StringField('Size', validators=[DataRequired(), Length(max=10)])
+    size = StringField('Size', validators=[DataRequired(message='Please enter size in SqFt'), Length(max=10)])
     submit = SubmitField('Submit')
 
-    def validate_rent_price(self, rent_per_month, price):
-        if rent_per_month.data == None and price.data == None:
-            raise ValidationError('Please enter amount.')
+    # def validate_rent_price(self, rent_per_month, price):
+    #     if rent_per_month.data == None and price.data == None:
+    #         raise ValidationError('Please enter amount.')
 
-
+    def validate_size(self, size):
+        if not size.data.isnumeric():
+            raise ValidationError('Only Numeric value is allowed.')
