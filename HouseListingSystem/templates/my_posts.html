@@ -2,28 +2,40 @@
 {% block content %}
 <div class="container">
     <div class="col-md-8">
-        {% for house in results %}
+        {% for house in results.items %}
         <div class="list-group list-group d-grid gap-2 border-0 w-auto posts">
-        <label class="list-group-item rounded-3 py-3">
-            <h5>{{ house.bhk }} BHK {{ house.property_type }} for {{ house.post_type }} in {{ house.locality }}, {{ house.city }}</h5>
-            <a href="{{ url_for('house_post', house_id=house.house_id) }}" class="btn btn-info">View More</a>
-<!--        <span>{{ house.post_type }}</span>-->
-<!--        <span class="d-block small opacity-50">{{ house.city }}</span>-->
-<!--        <span class="d-block small opacity-50">{{ house.locality }}</span>-->
-<!--        <span class="d-block small opacity-50">{{ house.address }}</span>-->
 
-<!--        <span class="d-block small opacity-50">{{ house.bhk }}</span>-->
-<!--        <span class="d-block small ">{{ house.verified }}</span>-->
-<!--        <span class="d-block small opacity-50">{{ house.user.name }}</span>-->
-<!--        {% if house.post_type == 'Rent' %}-->
-<!--            <span class="d-block small opacity-50">{{ house.rent_per_month }}</span>-->
-<!--        {% else %}-->
-<!--            <span class="d-block small opacity-50">{{ house.price }}</span>-->
-<!--        {% endif %}-->
-        </label>
-    </div>
+            <label class="list-group-item rounded-3 py-3">
+                <div class="article-metadata">
+                    <small>Posted by {{ house.user.username }} on {{ house.date_posted.strftime('%Y-%m-%d') }}</small>
+                </div>
+                <div class="col-md-4">
+                    <img class="home-my-posts-house-img" src="{{ url_for('static', filename='images/' + house.image_file) }}">
+                </div>
+                <div class="col-md-8">
+                    <h5>{{ house.bhk }} BHK {{ house.property_type }} for {{ house.post_type }} in {{ house.locality }}, {{ house.city }}</h5>
+                    {% if house.post_type == 'Rent' %}
+                    <p>Rent Per Month : {{ house.rent_per_month }}</p>
+                    {% else %}
+                    <p>Price : {{ house.price }}</p>
+                    {% endif %}
+                </div>
+                <a href="{{ url_for('house_post', house_id=house.house_id) }}" class="btn btn-info">View More</a>
+            </label>
+        </div>
         <br>
         {% endfor %}
     </div>
+    {% for page_num in results.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+      {% if page_num %}
+        {% if results.page == page_num %}
+          <a class="btn btn-info mb-4" href="{{ url_for('home', page=page_num) }}">{{ page_num }}</a>
+        {% else %}
+          <a class="btn btn-outline-info mb-4" href="{{ url_for('home', page=page_num) }}">{{ page_num }}</a>
+        {% endif %}
+      {% else %}
+        ...
+      {% endif %}
+    {% endfor %}
 </div>
 {% endblock content %}

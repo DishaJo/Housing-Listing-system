@@ -4,13 +4,22 @@
     <div class="col-md-8">
         {% for house in results.items %}
         <div class="list-group list-group d-grid gap-2 border-0 w-auto posts">
+
             <label class="list-group-item rounded-3 py-3">
-                <h5>{{ house.bhk }} BHK {{ house.property_type }} for {{ house.post_type }} in {{ house.locality }}, {{ house.city }}</h5>
-                {% if house.post_type == 'Rent' %}
-                <p>Rent Per Month : {{ house.rent_per_month }}</p>
-                {% else %}
-                <p>Price : {{ house.price }}</p>
-                {% endif %}
+                <div class="article-metadata">
+                    <small>Posted by {{ house.user.username }} on {{ house.date_posted.strftime('%Y-%m-%d') }}</small>
+                </div>
+                <div class="col-md-4">
+                    <img class="home-my-posts-house-img" src="{{ url_for('static', filename='images/' + house.image_file) }}">
+                </div>
+                <div class="col-md-8">
+                    <h5>{{ house.bhk }} BHK {{ house.property_type }} for {{ house.post_type }} in {{ house.locality }}, {{ house.city }}</h5>
+                    {% if house.post_type == 'Rent' %}
+                    <p>Rent Per Month : {{ house.rent_per_month }}</p>
+                    {% else %}
+                    <p>Price : {{ house.price }}</p>
+                    {% endif %}
+                </div>
                 <a href="{{ url_for('house_post', house_id=house.house_id) }}" class="btn btn-info">View More</a>
             </label>
         </div>

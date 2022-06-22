@@ -2,5 +2,16 @@
 {
     background-color : #207985 !important;
 }
+.house-post-image{
+    height: 300px;
+    width: 300px;
+    margin-right: 20px;
+    margin-bottom: 16px;
+}
 
-
+.home-my-posts-house-img{
+    height: 200px;
+    width: 200px;
+    margin-right: 20px;
+    margin-bottom: 16px;
+}

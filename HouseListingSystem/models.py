@@ -17,7 +17,6 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(120), unique=True, nullable=False)
     contact = db.Column(db.String(10), unique=True, nullable=False)
     password = db.Column(db.String(60), nullable=False)
-    user_image = db.Column(db.String(20), nullable=False, default='default.jpg')
     house_post = db.relationship('House', backref='user', lazy=True)
 
     def get_id(self):
@@ -47,11 +46,12 @@ class House(db.Model):
     locality = db.Column(db.String(30), nullable=False)
     address = db.Column(db.Text, nullable=False)
     property_type = db.Column(db.String(20), nullable=False)
-    size_sqft = db.Column(db.String(20), nullable=False)
+    area = db.Column(db.String(20), nullable=False)        #area in SqFt
     price = db.Column(db.String(20))
     rent_per_month = db.Column(db.String(20))
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    verified = db.Column(db.String, nullable=False, default='No')
+    verified = db.Column(db.String(20), nullable=False, default='No')
+    image_file = db.Column(db.String(100), nullable=False, default='house_default.jpg')
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
 
     def __repr__(self):

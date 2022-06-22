@@ -3,12 +3,14 @@
 <div class="container mt-3">
   <div class="card">
     <div class="card-body">
+        <img class="house-post-image" src="{{ image_file }}">
         <h2>{{ house.bhk }} BHK {{ house.property_type }} for {{ house.post_type }} in {{ house.locality }}, {{ house.city }}</h2>
         <p>BHK : {{ house.bhk }}</p>
         <p>City : {{ house.city }}</p>
         <p>Locality : {{ house.locality }}</p>
         <p>Address : {{ house.address }}</p>
         <p>Property Type : {{ house.property_type }}</p>
+        <p>Area : {{ house.area }} Sq.ft</p>
         <p>Verified : {{ house.verified }}</p>
         {% if house.post_type == 'Rent' %}
         <p>Rent Per Month : {{ house.rent_per_month }}</p>

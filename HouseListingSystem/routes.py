@@ -1,3 +1,6 @@
+import os
+import secrets
+from PIL import Image
 from flask import render_template, redirect, flash, url_for, request, abort
 from HouseListingSystem import app, db, bcrypt
 from HouseListingSystem.models import User, House
@@ -131,10 +134,16 @@ def delete_account():
 def sell_house():
     form = PostHouseForm()
     if form.validate_on_submit():
+        if form.house_image.data:
+            img_file = save_picture(form.house_image.data)
+            image_file = img_file
+        else:
+            image_file = 'house_default.jpg'
         post_type = 'Sell'
         price = form.price.data
-        house = House(post_type=post_type, user=current_user, city=form.city.data, locality=form.locality.data, address=form.address.data,
-                      bhk=form.bhk.data, property_type=form.property_type.data, price=price, size_sqft=form.size.data)
+        house = House(post_type=post_type, user=current_user, city=form.city.data, locality=form.locality.data,
+                      address=form.address.data, image_file=image_file, bhk=form.bhk.data,
+                      property_type=form.property_type.data, price=price, area=form.area.data)
         db.session.add(house)
         db.session.commit()
         flash('House posted successfully', 'success')
@@ -146,10 +155,17 @@ def sell_house():
 def rent_house():
     form = PostHouseForm()
     if form.validate_on_submit():
+        if form.house_image.data:
+            img_file = save_picture(form.house_image.data)
+            image_file = img_file
+        else:
+            image_file = 'default.jpg'
         post_type = 'Rent'
         rent_per_month = form.rent_per_month.data
-        house = House(post_type=post_type, user=current_user, city=form.city.data, locality=form.locality.data, address=form.address.data,
-                      bhk=form.bhk.data, property_type=form.property_type.data, rent_per_month=rent_per_month, size_sqft=form.size.data)
+        house = House(post_type=post_type, user=current_user, city=form.city.data, locality=form.locality.data,
+                      address=form.address.data, image_file=image_file, bhk=form.bhk.data,
+                      property_type=form.property_type.data, rent_per_month=rent_per_month,
+                      area=form.area.data)
         db.session.add(house)
         db.session.commit()
         flash('House posted successfully', 'success')
@@ -157,8 +173,10 @@ def rent_house():
 
 
 @app.route('/MyPosts')
+@login_required
 def my_posts():
-    results = House.query.filter_by(user_id=current_user.user_id)
+    page = request.args.get('page', 1, type=int)
+    results = House.query.filter_by(user_id=current_user.user_id).order_by(House.date_posted.desc()).paginate(page=page, per_page=3)
     return render_template('my_posts.html', title='My Posts', results=results)
 
 
@@ -166,7 +184,8 @@ def my_posts():
 @login_required
 def house_post(house_id):
     house = House.query.get_or_404(house_id)
-    return render_template('house_post.html', house=house)
+    image_file = url_for('static', filename='images/' + house.image_file)
+    return render_template('house_post.html', house=house, image_file=image_file)
 
 
 @app.route('/HousePost/<int:house_id>/update', methods=['GET', 'POST'])
@@ -177,11 +196,14 @@ def update_post(house_id):
         abort(403)
     form = PostHouseForm()
     if form.validate_on_submit():
+        if form.house_image.data:
+            img_file = save_picture(form.house_image.data)
+            house.image_file = img_file
         house.bhk = form.bhk.data
         house.city = form.city.data
         house.locality = form.locality.data
         house.address = form.address.data
-        house.size_sqft = form.size.data
+        house.area = form.area.data
         if house.post_type == 'Rent':
             house.rent_per_month = form.rent_per_month.data
         else:
@@ -194,26 +216,18 @@ def update_post(house_id):
         form.city.data = house.city
         form.locality.data = house.locality
         form.address.data = house.address
-        form.size.data = house.size_sqft
+        form.area.data = house.area
         if house.post_type == 'Rent':
             form.rent_per_month.data = house.rent_per_month
         else:
             form.price.data = house.price
-        house.bhk = form.bhk.data
-        house.city = form.city.data
-        house.locality = form.locality.data
-        house.address = form.address.data
-        if house.post_type == 'Rent':
-            house.rent_per_month = form.rent_per_month.data
-        else:
-            house.price = form.price.data
+    image_file = url_for('static', filename='images/' + house.image_file)
     if house.post_type == 'Rent':
         return render_template('rent_house.html', title='Update House',
-                               form=form, legend='Update House')
+                               form=form, legend='Update House', image_file=image_file)
     else:
         return render_template('sell_house.html', title='Update House',
-                               form=form, legend='Update House')
-
+                               form=form, legend='Update House', image_file=image_file)
 
 
 @app.route('/HousePost/<int:house_id>/delete')
@@ -224,3 +238,16 @@ def delete_post(house_id):
     db.session.commit()
     flash('House deleted successfully', 'success')
     return redirect(url_for('my_posts'))
+
+
+def save_picture(form_image):
+    random_hex = secrets.token_hex(8)
+    _, f_ext = os.path.splitext(form_image.filename)
+    image_fn = random_hex + f_ext
+    picture_path = os.path.join(app.root_path, 'static/images', image_fn)
+
+    output_size = (300, 300)
+    i = Image.open(form_image)
+    i.thumbnail(output_size)
+    i.save(picture_path)
+    return image_fn

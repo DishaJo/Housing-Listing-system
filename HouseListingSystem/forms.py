@@ -2,6 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import (StringField, PasswordField, EmailField, ValidationError,
                      SubmitField, BooleanField, SelectField)
 from wtforms.validators import DataRequired, Length, EqualTo
+from flask_wtf.file import FileField, FileAllowed
 from HouseListingSystem.models import User
 from flask_login import current_user
 
@@ -145,13 +146,11 @@ class PostHouseForm(FlaskForm):
     bhk = SelectField('BHK', choices=['1', '2', '3', '4', '5+'])
     price = StringField('Price', validators=[Length(max=20)])
     rent_per_month = StringField('Rent Per Month', validators=[Length(max=20)])
-    size = StringField('Size', validators=[DataRequired(message='Please enter size in SqFt'), Length(max=10)])
+    house_image = FileField('Upload Image', validators=[FileAllowed(['jpg', 'png', 'jpeg'])])
+    area = StringField('Area in sq.ft', validators=[DataRequired(message='Please enter area'), Length(max=10)])
     submit = SubmitField('Submit')
 
-    # def validate_rent_price(self, rent_per_month, price):
-    #     if rent_per_month.data == None and price.data == None:
-    #         raise ValidationError('Please enter amount.')
 
-    def validate_size(self, size):
-        if not size.data.isnumeric():
+    def validate_area(self, area):
+        if not area.data.isnumeric():
             raise ValidationError('Only Numeric value is allowed.')
