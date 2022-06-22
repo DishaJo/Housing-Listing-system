@@ -147,6 +147,7 @@ def sell_house():
         db.session.add(house)
         db.session.commit()
         flash('House posted successfully', 'success')
+        return redirect(url_for('home'))
     return render_template('sell_house.html', title='Sell House', form=form)
 
 
@@ -159,7 +160,7 @@ def rent_house():
             img_file = save_picture(form.house_image.data)
             image_file = img_file
         else:
-            image_file = 'default.jpg'
+            image_file = 'house_default.jpg'
         post_type = 'Rent'
         rent_per_month = form.rent_per_month.data
         house = House(post_type=post_type, user=current_user, city=form.city.data, locality=form.locality.data,
@@ -169,6 +170,7 @@ def rent_house():
         db.session.add(house)
         db.session.commit()
         flash('House posted successfully', 'success')
+        return redirect(url_for('home'))
     return render_template('rent_house.html', title='Rent House', form=form)
 
 
