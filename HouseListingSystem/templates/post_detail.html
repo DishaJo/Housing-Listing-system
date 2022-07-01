@@ -1,0 +1,30 @@
+{% extends "admin_panel.html"%}
+{% block admincontent %}
+<div class="container mt-3">
+        <h4>User Detail</h4>
+        <div class="card">
+            <div class="card-body">
+                <img class="house-post-image" src="{{ url_for('static', filename='images/' + house.image_file) }}">
+                <h2>{{ house.bhk }} BHK {{ house.property_type }} for {{ house.post_type }} in {{ house.locality }}, {{ house.city }}</h2>
+                <p>BHK : {{ house.bhk }}</p>
+                <p>City : {{ house.city }}</p>
+                <p>Locality : {{ house.locality }}</p>
+                <p>Address : {{ house.address }}</p>
+                <p>Property Type : {{ house.property_type }}</p>
+                <p>Area : {{ house.area }} Sq.ft</p>
+                <p>Verified : {{ house.verified }}</p>
+                {% if house.post_type == 'Rent' %}
+                <p>Rent Per Month : {{ house.rent_per_month }}</p>
+                {% else %}
+                <p>Price : {{ house.price }}</p>
+                {% endif %}
+                <p>Posted by {{ house.user.name }}</p>
+            </div>
+            {% if house.verified==False %}
+            <div class="col-md-6">
+                <a href="{{ url_for('posts.verify_post', house_id=house.house_id) }}" class="btn btn-info">Mark as verified</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock admincontent %}

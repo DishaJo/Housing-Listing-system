@@ -1,0 +1,27 @@
+{% extends "admin_panel.html"%}
+{% block admincontent %}
+<div class="container mt-3">
+        <h4>User Detail</h4>
+        <div class="card">
+            <div class="card-body">
+                <p>USERID : {{user.user_id}}</p>
+                <br>
+                <p>USERNAME : {{user.username}}</p>
+                <br>
+                <p>NAME : {{user.name}}</p>
+                <br>
+                <p>EMAIL : {{user.email}}</p>
+                <br>
+                <p>CONTACT : {{user.contact}}</p>
+                <br>
+                <p>VERIFIED : {{user.verified}}</p>
+                <br>
+            </div>
+            {% if user.verified==False %}
+            <div class="col-md-6">
+                <a href="{{ url_for('users.verify_user', user_id=user.user_id) }}" class="btn btn-info">Mark as verified</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock admincontent%}

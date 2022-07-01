@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="admin-sidebar">
+                    <div class="border-end bg-white" id="sidebar-wrapper">
+                        <div class="sidebar-heading border-bottom bg-light">Admin Functions</div>
+                        <div class="list-group list-group-flush">
+                                <a class="list-group-item list-group-item-action list-group-item-light p-3" href="{{ url_for('users.verified_users') }}">Verified Users</a>
+                                <a class="list-group-item list-group-item-action list-group-item-light p-3" href="{{ url_for('users.unverified_users') }}">Unverified Users</a>
+                                <a class="list-group-item list-group-item-action list-group-item-light p-3" href="{{ url_for('posts.verified_posts') }}">Verified Posts</a>
+                                <a class="list-group-item list-group-item-action list-group-item-light p-3" href="{{ url_for('posts.unverified_posts') }}">Unverified Posts</a>
+            <!--                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Profile</a>-->
+            <!--                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Status</a>-->
+                            </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-9">
+                {%block admincontent%}{% endblock %}
+            </div>
+        </div>
+
+    </div>
+
+
+
+{% endblock content %}

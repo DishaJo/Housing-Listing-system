@@ -23,4 +23,10 @@ app.config['MAIL_PASSWORD'] = os.environ.get('EMAIL_PASSWORD')
 mail = Mail(app)
 migrate = Migrate(app, db)
 
-from HouseListingSystem import routes
+from HouseListingSystem.users.routes import users
+from HouseListingSystem.posts.routes import posts
+from HouseListingSystem.main.routes import main
+app.register_blueprint(users)
+app.register_blueprint(posts)
+app.register_blueprint(main)
+

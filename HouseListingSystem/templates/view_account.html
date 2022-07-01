@@ -14,7 +14,7 @@
                 <br>
             </div>
             <div class="col-md-6">
-                <a href="{{ url_for('update_account') }}" class="btn btn-info">Update</a>
+                <a href="{{ url_for('users.update_account') }}" class="btn btn-info">Update</a>
                 <button class='btn btn-danger' onclick="myFunction()">Delete Account</button>
             </div>
         </div>
@@ -25,7 +25,7 @@
 function myFunction() {
   let text = "Are you sure you want to delete account?";
   if (confirm(text) == true) {
-    window. location = '{{url_for('delete_account')}}'
+    window. location = '{{url_for('users.delete_account')}}'
   }
 }
 </script>

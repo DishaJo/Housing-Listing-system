@@ -3,7 +3,7 @@
 <div class="container mt-3">
   <div class="card">
     <div class="card-body">
-        <img class="house-post-image" src="{{ image_file }}">
+        <img class="house-post-image" src="{{ url_for('static', filename='images/' + house.image_file) }}">
         <h2>{{ house.bhk }} BHK {{ house.property_type }} for {{ house.post_type }} in {{ house.locality }}, {{ house.city }}</h2>
         <p>BHK : {{ house.bhk }}</p>
         <p>City : {{ house.city }}</p>
@@ -12,6 +12,7 @@
         <p>Property Type : {{ house.property_type }}</p>
         <p>Area : {{ house.area }} Sq.ft</p>
         <p>Verified : {{ house.verified }}</p>
+        <p>Status : {{ house.status }}</p>
         {% if house.post_type == 'Rent' %}
         <p>Rent Per Month : {{ house.rent_per_month }}</p>
         {% else %}
@@ -20,12 +21,35 @@
         <p>Posted by {{ house.user.name }}</p>
         {% if house.user == current_user %}
         <div>
-            <a class="btn btn-info" href="{{ url_for('update_post', house_id=house.house_id) }}">Update</a>
+            <a class="btn btn-info" href="{{ url_for('posts.update_post', house_id=house.house_id) }}">Update</a>
             <button class='btn btn-danger' onclick="myFunction()">Delete</button>
+            <button class='btn btn' onclick="toggle_display()">Update Status</button>
+            <div class="update_status_form" style="visibility:hidden; display:none">
+                <form method="POST" novalidate>
+                    {{ form.hidden_tag() }}
+                    {{ form.status.label }}
+                      {% if form.status.errors %}
+                      {{ form.status(class="form-control form-control-lg is-invalid") }}
+                      <div class="invalid-feedback">
+                        {% for error in form.status.errors %}
+                        <span>{{ error }}</span>
+                        {% endfor %}
+                      </div>
+                      {% else %}
+                      {{ form.status(class="form-control") }}
+                      {% endif %}
+                    {{ form.submit(class="btn btn-outline-info ") }}
+                </form>
+            </div>
+
         </div>
         {% else %}
         <div>
-            <a class="btn btn-info" href="#">Add to favourites</a>
+            {% if current_user.user_id in house.favourite|map(attribute="user_id")|list %}
+            <a href="{{url_for('users.add_to_favourites', house_id=house.house_id)}}" class="btn btn-info">Remove from favourites</a>
+            {% else %}
+            <a href="{{url_for('users.add_to_favourites', house_id=house.house_id)}}" class="btn btn-info">Add to favourites</a>
+            {% endif %}
         </div>
         {% endif %}
     </div>
@@ -36,9 +60,20 @@
 function myFunction() {
   let text = "Are you sure you want to delete this house post?";
   if (confirm(text) == true) {
-    window. location = '{{url_for('delete_post', house_id=house.house_id)}}'
+    window. location = '{{url_for('posts.delete_post', house_id=house.house_id)}}'
   }
 }
-</script>
 
+function toggle_display(){
+    el = document.querySelector('.update_status_form')
+    if(el.style.visibility == 'hidden'){
+        el.style.visibility = 'visible'
+        el.style.display = 'block'
+    }
+    else{
+        el.style.visibility = 'hidden'
+        el.style.display = 'none'
+    }
+}
+</script>
 {% endblock %}
