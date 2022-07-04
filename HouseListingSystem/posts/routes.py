@@ -185,7 +185,7 @@ def like_post(house_id):
         like = Like(user_id=current_user.user_id, house_id=house.house_id)
         db.session.add(like)
         db.session.commit()
-    return redirect(url_for(request.url))
+    return redirect(url_for('main.home'))
 
 
 # passing search form to navbar in layout
