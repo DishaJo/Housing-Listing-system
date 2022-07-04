@@ -18,6 +18,8 @@ removed_favourite = 'Removed from favourites!'
 post_updated = 'Post updated successfully!'
 post_deleted = 'Post deleted!'
 status_updated = 'House Status updated'
+mail_sent_to_owner = 'Mail sent to house owner'
+
 # admin
 verified_user = 'User marked as verified!'
 verified_post = 'Post verified!'

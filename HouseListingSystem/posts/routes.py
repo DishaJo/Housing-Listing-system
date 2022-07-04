@@ -1,9 +1,9 @@
 from flask import render_template, redirect, flash, url_for, request, abort, Blueprint
 from HouseListingSystem import db, messages
-from HouseListingSystem.models import House, Like
+from HouseListingSystem.models import House, Like, Interest
 from HouseListingSystem.posts.forms import PostHouseForm, UpdateHouseStatusForm, SearchForm
 from flask_login import current_user, login_required
-from HouseListingSystem.posts.utils import save_picture
+from HouseListingSystem.posts.utils import save_picture, send_mail
 
 
 posts = Blueprint('posts', __name__)
@@ -185,7 +185,7 @@ def like_post(house_id):
         like = Like(user_id=current_user.user_id, house_id=house.house_id)
         db.session.add(like)
         db.session.commit()
-    return redirect(url_for('main.home'))
+    return redirect(url_for(request.url))
 
 
 # passing search form to navbar in layout
@@ -202,10 +202,31 @@ def searched_results():
     if form.validate_on_submit():
         searched_word = form.search.data.capitalize()
         page = request.args.get('page', 1, type=int)
-
         results = House.query.filter(House.city.like('%'+searched_word+'%'), House.user_id != current_user.user_id).paginate(page=page, per_page=3)
-
-        return render_template('searched_results.html', form=form, searched_word=searched_word,results=results)
+        return render_template('searched_results.html', form=form, searched_word=searched_word, results=results)
     return redirect(url_for('main.home'))
 
+
+@posts.route('/interested-in-house/<int:house_id>')
+@login_required
+def interested_in_house(house_id):
+    house = House.query.get_or_404(house_id)
+    interest = Interest(house_id=house_id, user_id=current_user.user_id)
+    db.session.add(interest)
+    db.session.commit()
+    # send mail to house owner
+    owner = house.user
+    send_mail(owner=owner, interested_user=current_user, house=house)
+    flash(messages.mail_sent_to_owner, 'success')
+    return redirect(url_for('posts.house_post', house_id=house.house_id))
+
+
+@posts.route('/show-interested-users/<int:house_id>')
+@login_required
+def show_interested_users(house_id):
+    house = House.query.get_or_404(house_id)
+    if current_user != house.user:
+        abort(403)
+    results = Interest.query.filter_by(house_id=house.house_id).all()
+    return render_template('interested_users.html', title='Interested users', results=results)
 

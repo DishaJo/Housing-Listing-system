@@ -40,8 +40,9 @@
                       {% endif %}
                     {{ form.submit(class="btn btn-outline-info ") }}
                 </form>
-            </div>
 
+            </div>
+            <a href="{{ url_for('posts.show_interested_users', house_id=house.house_id) }}">Show interested users</a>
         </div>
         {% else %}
         <div>
@@ -51,6 +52,7 @@
             <a href="{{url_for('users.add_to_favourites', house_id=house.house_id)}}" class="btn btn-info">Add to favourites</a>
             {% endif %}
         </div>
+        <a href="{{ url_for('posts.interested_in_house', house_id=house.house_id) }}">Interested in this house? Would you like to be contacted by owner?</a>
         {% endif %}
     </div>
   </div>

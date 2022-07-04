@@ -105,8 +105,6 @@
                     </div>
                     <br>
                     <div class="form-group">
-                    {{ form.house_image.label() }}
-                    {{ form.house_image(class="form-control-file") }}
                     {% if form.house_image.errors %}
                         {% for error in form.house_image.errors %}
                             <span class="text-danger">{{ error }}</span>
