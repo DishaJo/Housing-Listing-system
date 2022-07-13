@@ -1,47 +1,47 @@
 {% extends "admin_panel.html" %}
 {% block admincontent %}
 <h4> {{ title }} </h4>
-    <br>
-      <div class="table-responsive">
-        <table class="table table-striped table-sm">
-          <thead>
-            <tr>
-              <th scope="col">HouseID</th>
-              <th scope="col">Posted By</th>
-              <th scope="col">On Date</th>
-              <th scope="col">For</th>
-              <th scope="col">Verified</th>
-              <th scope="col">.</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for house in results.items %}
-            <tr>
-              <td>{{ house.house_id }}</td>
-              <td>{{ house.user.name}}</td>
-              <td>{{ house.date_posted.strftime('%Y-%m-%d') }}</td>
-              <td>{{ house.post_type }}</td>
-              <td>{{ house.verified }}</td>
-              <td><a class="btn btn-sm btn-info" href="{{ url_for('posts.post_detail', house_id=house.house_id) }}">view more</a></td>
-            </tr>
-            {% endfor %}
+<br>
+<div class="table-responsive">
+    <table class="table table-striped table-sm">
+        <thead>
+        <tr>
+            <th scope="col">HouseID</th>
+            <th scope="col">Posted By</th>
+            <th scope="col">On Date</th>
+            <th scope="col">For</th>
+            <th scope="col">Verified</th>
+            <th scope="col">.</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for house in results.items %}
+        <tr>
+            <td>{{ house.house_id }}</td>
+            <td>{{ house.user.name}}</td>
+            <td>{{ house.date_posted.strftime('%Y-%m-%d') }}</td>
+            <td>{{ house.post_type }}</td>
+            <td>{{ house.verified }}</td>
+            <td><a class="btn btn-sm btn-info" href="{{ url_for('posts.post_detail', house_id=house.house_id) }}">view
+                more</a></td>
+        </tr>
+        {% endfor %}
 
 
-          </tbody>
-        </table>
-      </div>
+        </tbody>
+    </table>
+</div>
 
 
-
-    {% for page_num in results.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
-      {% if page_num %}
-        {% if results.page == page_num %}
-          <a class="btn btn-info mb-4" href="{{ url_for(function, page=page_num) }}">{{ page_num }}</a>
-        {% else %}
-          <a class="btn btn-outline-info mb-4" href="{{ url_for(function, page=page_num) }}">{{ page_num }}</a>
-        {% endif %}
-      {% else %}
-        ...
-      {% endif %}
-    {% endfor %}
+{% for page_num in results.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+{% if page_num %}
+{% if results.page == page_num %}
+<a class="btn btn-info mb-4" href="{{ url_for(function, page=page_num) }}">{{ page_num }}</a>
+{% else %}
+<a class="btn btn-outline-info mb-4" href="{{ url_for(function, page=page_num) }}">{{ page_num }}</a>
+{% endif %}
+{% else %}
+...
+{% endif %}
+{% endfor %}
 {% endblock admincontent %}

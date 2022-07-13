@@ -7,6 +7,7 @@ from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_mail import Mail
 from flask_migrate import Migrate
+import cloudinary
 
 load_dotenv()
 app = Flask(__name__)
@@ -23,6 +24,13 @@ app.config['MAIL_PASSWORD'] = os.environ.get('EMAIL_PASSWORD')
 mail = Mail(app)
 migrate = Migrate(app, db)
 
+cloudinary.config(
+    cloudinary_url=os.environ.get('CLOUDINARY_URL'),
+    api_key=os.environ.get('API_KEY'),
+    api_secret=os.environ.get('API_SECRET'),
+    cloud_name=os.environ.get('CLOUD_NAME')
+)
+config = cloudinary.config(secure=True)
 from HouseListingSystem.users.routes import users
 from HouseListingSystem.posts.routes import posts
 from HouseListingSystem.main.routes import main

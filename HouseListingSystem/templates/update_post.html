@@ -1,11 +1,13 @@
 {% extends 'layout.html' %}
 {% block content %}
-<div class="container forms">
+
+<div class="container">
+    <div class="row">
         <div class="col-md-6">
             <form method="POST" novalidate enctype="multipart/form-data">
                 {{ form.hidden_tag() }}
                 <fieldset class="form-group">
-                    <h1 class="h3 mb-3 fw-normal">Rent House</h1>
+                    <h1 class="h3 mb-3 fw-normal">{{ post_type }}</h1>
                     <div class="form-group">
                         {{ form.city.label }}
                         {% if form.city.errors %}
@@ -91,7 +93,11 @@
                     </div>
                     <br>
                     <div class="form-group">
-                        Rent Per Month
+                        {% if post_type == 'rent' %}
+                        Rent per month
+                        {% else %}
+                        Price
+                        {% endif %}
                         {% if form.value.errors %}
                         {{ form.value(class="form-control is-invalid") }}
                         <div class="invalid-feedback">
@@ -105,12 +111,15 @@
                     </div>
                     <br>
                     <div class="form-group">
-                        {{ form.house_image.label() }}
-                        {{ form.house_image(class="form-control-file") }}
+                        {{ form.house_image.label }}
                         {% if form.house_image.errors %}
-                        {% for error in form.house_image.errors %}
-                        <span class="text-danger">{{ error }}</span>
-                        {% endfor %}
+                        <div class="invalid-feedback">
+                            {% for error in form.house_image.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        {{ form.house_image(class="form-control", multiple="True") }}
                         {% endif %}
                     </div>
                 </fieldset>
@@ -120,6 +129,17 @@
                 </div>
             </form>
         </div>
-
+        <div class="col-md-6">
+            {% if images %}
+            {% for image in images %}
+            <img src="{{image.image_file}}" class="update-form-images">
+            <a href="{{ url_for('posts.delete_image', image_id=image.image_id) }}">Remove Image</a>
+            <br>
+            {% endfor %}
+            {% else %}
+            No images
+            {% endif %}
+        </div>
     </div>
+</div>
 {% endblock content %}

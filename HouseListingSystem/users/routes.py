@@ -1,21 +1,25 @@
 from flask import render_template, redirect, flash, url_for, request, abort, Blueprint
 from flask_login import login_user, current_user, logout_user, login_required
 from HouseListingSystem import db, bcrypt
-from HouseListingSystem.models import User, House, Favourite
+from HouseListingSystem.users.models import User
+from HouseListingSystem.posts.models import House, Favourite, Images, City
 from HouseListingSystem.users.forms import (RegisterForm, LoginForm, ResetPasswordRequestForm,
                                             ResetPasswordForm, UpdateAccountForm)
 from HouseListingSystem.posts.forms import SearchForm
 from HouseListingSystem.users.utils import send_mail
 from HouseListingSystem import messages
+import cloudinary.uploader
+import cloudinary.api
 
 users = Blueprint('users', __name__)
 
 
-# passing search form to navbar in layout
 @users.context_processor
 def layout():
+    # passing search form to navbar in layout
     form = SearchForm()
-    return dict(form=form)
+    cities = City.query.all()
+    return dict(form=form, cities=cities)
 
 
 @users.route('/register', methods=['GET', 'POST'])
@@ -67,6 +71,7 @@ def reset_password_request():
         if user:
             token = user.get_reset_password_token()
             send_mail(token=token, user=user)
+            form.email.data = ''
         flash(messages.email_sent, 'info')
     return render_template('reset_password_request.html', title='Request Password Reset', form=form)
 
@@ -98,20 +103,13 @@ def view_account():
 @users.route('/update-account', methods=['POST', 'GET'])
 @login_required
 def update_account():
-    form = UpdateAccountForm()
+    form = UpdateAccountForm(obj=current_user)
     if form.validate_on_submit():
-        current_user.username = form.username.data
-        current_user.name = form.name.data
-        current_user.email = form.email.data
-        current_user.contact = form.contact.data
+        form.populate_obj(current_user)
+        db.session.add(current_user)
         db.session.commit()
         flash(messages.account_updated, 'success')
         return redirect(url_for('users.view_account'))
-    else:
-        form.username.data = current_user.username
-        form.name.data = current_user.name
-        form.email.data = current_user.email
-        form.contact.data = current_user.contact
     return render_template('update_account.html', form=form)
 
 
@@ -134,7 +132,8 @@ def my_posts():
     page = request.args.get('page', 1, type=int)
     results = (House.query.filter_by(user_id=current_user.user_id)
                .order_by(House.date_posted.desc()).paginate(page=page, per_page=3))
-    return render_template('my_posts.html', title='My Posts', results=results)
+    images = Images.query.all()
+    return render_template('my_posts.html', title='My Posts', results=results, images=images)
 
 
 @users.route('/add-to-favourites/<int:house_id>')
@@ -161,7 +160,8 @@ def my_favourites():
     results = (db.session.query(House).outerjoin(Favourite, House.house_id == Favourite.house_id)
                .group_by(House.house_id).filter(Favourite.user_id == current_user.user_id)
                .paginate(page=page, per_page=3))
-    return render_template('my_favourites.html', title='My Favourites', results=results)
+    images = Images.query.all()
+    return render_template('my_favourites.html', title='My Favourites', results=results, images=images)
 
 
 # admin functions

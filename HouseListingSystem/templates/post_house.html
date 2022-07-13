@@ -1,0 +1,132 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="container forms">
+    <div class="col-md-6">
+        <form method="POST" novalidate enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            <fieldset class="form-group">
+                <h1 class="h3 mb-3 fw-normal">{{ post_type }}</h1>
+                <div class="form-group">
+                    {{ form.city.label }}
+                    {% if form.city.errors %}
+                    {{ form.city(class="form-control is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.city.errors %}
+                        <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.city(class="form-control") }}
+                    {% endif %}
+                </div>
+                <br>
+                <div class="form-group">
+                    {{ form.locality.label }}
+                    {% if form.locality.errors %}
+                    {{ form.locality(class="form-control is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.locality.errors %}
+                        <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.locality(class="form-control") }}
+                    {% endif %}
+                </div>
+                <br>
+                <div class="form-group">
+                    {{ form.address.label }}
+                    {% if form.address.errors %}
+                    {{ form.address(class="form-control is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.address.errors %}
+                        <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.address(class="form-control") }}
+                    {% endif %}
+                </div>
+                <br>
+                <div class="form-group">
+                    {{ form.property_type.label }}
+                    {% if form.property_type.errors %}
+                    {{ form.property_type(class="form-control is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.property_type.errors %}
+                        <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.property_type(class="form-control") }}
+                    {% endif %}
+                </div>
+                <br>
+                <div class="form-group">
+                    {{ form.bhk.label }}
+                    {% if form.bhk.errors %}
+                    {{ form.bhk(class="form-control is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.bhk.errors %}
+                        <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.bhk(class="form-control") }}
+                    {% endif %}
+                </div>
+                <br>
+                <div class="form-group">
+                    {{ form.area.label }}
+                    {% if form.area.errors %}
+                    {{ form.area(class="form-control is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.area.errors %}
+                        <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.area(class="form-control") }}
+                    {% endif %}
+                </div>
+                <br>
+                <div class="form-group">
+                    {% if post_type == 'rent' %}
+                    Rent per month
+                    {% else %}
+                    Price
+                    {% endif %}
+                    {% if form.value.errors %}
+                    {{ form.value(class="form-control is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.value.errors %}
+                        <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.value(class="form-control") }}
+                    {% endif %}
+                </div>
+                <br>
+                <div class="form-group">
+                    {{ form.house_image.label }}
+                    {% if form.house_image.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.house_image.errors %}
+                        <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.house_image(class="form-control", multiple="True") }}
+                    {% endif %}
+                </div>
+            </fieldset>
+            <br>
+            <div>
+                {{ form.submit(class="btn btn-outline-info") }}
+            </div>
+        </form>
+    </div>
+
+</div>
+{% endblock content %}

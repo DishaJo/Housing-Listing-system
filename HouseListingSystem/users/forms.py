@@ -1,67 +1,54 @@
 from flask_wtf import FlaskForm
 from wtforms import (StringField, PasswordField, EmailField, ValidationError,
                      SubmitField, BooleanField)
-from wtforms.validators import DataRequired, Length, EqualTo
-from HouseListingSystem.models import User
+from wtforms.validators import DataRequired, Length, EqualTo, Regexp
+from flask_wtf.file import FileField, FileAllowed
+from HouseListingSystem.users.models import User
 from flask_login import current_user
+import HouseListingSystem.messages as m
 
 
 class RegisterForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired(message="Please enter Username."),
-                                                   Length(min=5, max=20,
-                                                          message='Password should have min 5 & max 20 charcters')])
-    name = StringField('Name', validators=[DataRequired(message="Please enter name"), Length(min=2, max=25)])
-    contact = StringField('Contact no', validators=[DataRequired(message="Please enter contact"),
-                                                    Length(min=10, max=10, message='Contact should be of 10 digits')])
-    email = EmailField('EmailID', validators=[DataRequired(message="Please enter email"), Length(max=120)])
-    password = PasswordField('Password',
-                             validators=[DataRequired(message="Please enter password"), Length(min=6, max=20)])
+    username = StringField('Username', validators=[DataRequired(message=m.enter_username),
+                                                   Length(min=6, max=20,
+                                                          message=m.password_length)])
+    name = StringField('Name', validators=[DataRequired(message=m.enter_name), Length(min=2, max=25)])
+    contact = StringField('Contact no', validators=[DataRequired(message=m.enter_contact), Length(max=10),
+                                                    Regexp('[6-9][0-9]{9}', message=m.invalid_contact)])
+    email = EmailField('EmailID', validators=[DataRequired(message=m.enter_email), Length(max=120)])
+    password = PasswordField('Password', validators={DataRequired(message=m.enter_password),
+                                                     Regexp(
+                                                         '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!#%*?&]{6,20}$',
+                                                         message=m.password_validation)})
     confirm_password = PasswordField('Confirm Password',
-                                     validators=[DataRequired(message="Please enter confirm password"),
+                                     validators=[DataRequired(message=m.enter_confirm_password),
                                                  EqualTo('password',
-                                                         message="Confirm password does not match with password")])
+                                                         message=m.invalid_confirm_password)])
+
     submit = SubmitField('Submit')
 
-    # def validate_password(self, password):
-    #     symbol = ['@', '*', '#', '&', '!', '$']
-    #     password = password.data.strip()
-    #     errors = ''
-    #     if password.find(' ') != -1:
-    #         errors += 'Password can not have white space.\n'
-    #     # if len(password.data) < 6 or len(password.data) > 20:
-    #     #     errors += 'Password must have minimum 6 & maximum 20 characters.\n'
-    #     if not any(char.isdigit() for char in password.data):
-    #         errors += 'Password should have at least 1 digit\n'
-    #     if not any(char.islower() for char in password.data):
-    #         errors += 'Password should have at least 1 lowercase letter\n'
-    #     if not any(char.isupper() for char in password.data):
-    #         errors += 'Password should have at least 1 uppercase letter\n'
-    #     if not any(char in symbol for char in password.data):
-    #         errors += f'Password should have at least on special character from this {symbol}\n'
-    #     if errors != '':
-    #         raise ValidationError(f'{errors}')
 
     def validate_username(self, username):
         user = User.query.filter_by(username=username.data).first()
         if user:
-            raise ValidationError('This username is already taken. Please choose a different one.')
+            raise ValidationError(m.username_taken)
 
     def validate_contact(self, contact):
         if not contact.data.isdigit():
-            raise ValidationError('Invalid Contact no.')
+            raise ValidationError(m.invalid_contact)
         user = User.query.filter_by(contact=contact.data).first()
         if user:
-            raise ValidationError('This contact no is already registered.')
+            raise ValidationError(m.contact_registered)
 
     def validate_email(self, email):
         user = User.query.filter_by(email=email.data).first()
         if user:
-            raise ValidationError('This email is already registered.')
+            raise ValidationError(m.email_registered)
 
 
 class LoginForm(FlaskForm):
-    email = EmailField('Email', validators=[DataRequired(message="Please enter email"), Length(max=120)])
-    password = PasswordField('Password', validators=[DataRequired(message="Please enter password")])
+    email = EmailField('Email', validators=[DataRequired(m.enter_email), Length(max=120)])
+    password = PasswordField('Password', validators=[DataRequired(message=m.enter_password)])
     remember = BooleanField('Remember Me')
     submit = SubmitField('Log In')
 
@@ -73,46 +60,29 @@ class ResetPasswordRequestForm(FlaskForm):
     def validate_email(self, email):
         user = User.query.filter_by(email=email.data).first()
         if user is None:
-            raise ValidationError('This email is not registered.')
+            raise ValidationError(m.email_not_registered)
 
 
 class ResetPasswordForm(FlaskForm):
-    password = PasswordField('Password', validators=[DataRequired(message="Please enter password"),
-                                                     Length(min=6, max=20,
-                                                            message='Password should have min 6 & max 20 charcters')])
+    password = PasswordField('Password', validators={DataRequired(message=m.enter_password),
+                                                     Regexp(
+                                                         '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!#%*?&]{6,20}$',
+                                                         message=m.password_validation)})
     confirm_password = PasswordField('Confirm Password',
-                                     validators=[DataRequired(message="Please enter confirm password"),
+                                     validators=[DataRequired(message=m.enter_confirm_password),
                                                  EqualTo('password',
-                                                         message="Confirm password does not match with password")])
+                                                         message=m.invalid_confirm_password)])
     submit = SubmitField('Reset Password')
-
-    # def validate_password(self, password):
-    #     symbol = ['@', '*', '#', '&', '!', '$']
-    #     password = password.data.strip()
-    #     errors = ''
-    #     if password.find(' ') != -1:
-    #         errors += 'Password can not have white space.\n'
-    #     # if len(password.data) < 6 or len(password.data) > 20:
-    #     #     errors += 'Password must have minimum 6 & maximum 20 characters.\n'
-    #     if not any(char.isdigit() for char in password.data):
-    #         errors += 'Password should have at least 1 digit\n'
-    #     if not any(char.islower() for char in password.data):
-    #         errors += 'Password should have at least 1 lowercase letter\n'
-    #     if not any(char.isupper() for char in password.data):
-    #         errors += 'Password should have at least 1 uppercase letter\n'
-    #     if not any(char in symbol for char in password.data):
-    #         errors += f'Password should have at least on special character from this {symbol}\n'
-    #     if errors != '':
-    #         raise ValidationError(f'{errors}')
 
 
 class UpdateAccountForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=5, max=20)])
-    name = StringField('Name', validators=[DataRequired(message="Please enter name"), Length(min=2, max=25)])
+    name = StringField('Name', validators=[DataRequired(m.enter_name), Length(min=2, max=25)])
 
-    email = StringField('Email', validators=[DataRequired()])
-    contact = StringField('Contact no', validators=[DataRequired(message="Please enter contact"),
-                                                    Length(min=10, max=10, message='Contact should be of 10 digits')])
+    email = StringField('Email', validators=[DataRequired(message=m.enter_email)])
+    contact = StringField('Contact no', validators=[DataRequired(message=m.enter_contact),
+                                                    Length(max=10), Regexp('[6-9][0-9]{9}', message=m.invalid_contact)])
+    profile = FileField('Update Profile', validators=[FileAllowed(['jpg', 'png', 'jpeg'], message=m.file_allowed)])
 
     submit = SubmitField('Update')
 
@@ -120,18 +90,18 @@ class UpdateAccountForm(FlaskForm):
         if username.data != current_user.username:
             user = User.query.filter_by(username=username.data).first()
             if user:
-                raise ValidationError('That username is taken. Please choose a different one.')
+                raise ValidationError(m.username_taken)
 
     def validate_email(self, email):
         if email.data != current_user.email:
             user = User.query.filter_by(email=email.data).first()
             if user:
-                raise ValidationError('That email is already registered.')
+                raise ValidationError(m.email_registered)
 
     def validate_contact(self, contact):
         if not contact.data.isdigit():
-            raise ValidationError('Invalid Contact no.')
+            raise ValidationError(m.invalid_contact)
         if contact.data != current_user.contact:
             user = User.query.filter_by(email=contact.data).first()
             if user:
-                raise ValidationError('This contact no. is already registered.')
+                raise ValidationError(m.contact_registered)

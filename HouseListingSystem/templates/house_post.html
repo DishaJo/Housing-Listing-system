@@ -1,61 +1,198 @@
 {% extends "layout.html" %}
 {% block content %}
-<div class="container mt-3">
-  <div class="card">
-    <div class="card-body">
-        <img class="house-post-image" src="{{ url_for('static', filename='images/' + house.image_file) }}">
-        <h2>{{ house.bhk }} BHK {{ house.property_type }} for {{ house.post_type }} in {{ house.locality }}, {{ house.city }}</h2>
-        <p>BHK : {{ house.bhk }}</p>
-        <p>City : {{ house.city }}</p>
-        <p>Locality : {{ house.locality }}</p>
-        <p>Address : {{ house.address }}</p>
-        <p>Property Type : {{ house.property_type }}</p>
-        <p>Area : {{ house.area }} Sq.ft</p>
-        <p>Verified : {{ house.verified }}</p>
-        <p>Status : {{ house.status }}</p>
-        {% if house.post_type == 'Rent' %}
-        <p>Rent Per Month : {{ house.rent_per_month }}</p>
-        {% else %}
-        <p>Price : {{ house.price }}</p>
-        {% endif %}
-        <p>Posted by {{ house.user.name }}</p>
-        {% if house.user == current_user %}
-        <div>
-            <a class="btn btn-info" href="{{ url_for('posts.update_post', house_id=house.house_id) }}">Update</a>
-            <button class='btn btn-danger' onclick="myFunction()">Delete</button>
-            <button class='btn btn' onclick="toggle_display()">Update Status</button>
-            <div class="update_status_form" style="visibility:hidden; display:none">
-                <form method="POST" novalidate>
-                    {{ form.hidden_tag() }}
-                    {{ form.status.label }}
-                      {% if form.status.errors %}
-                      {{ form.status(class="form-control form-control-lg is-invalid") }}
-                      <div class="invalid-feedback">
-                        {% for error in form.status.errors %}
-                        <span>{{ error }}</span>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <div class="gallery">
+                        {% for img in images %}
+                        <img src="{{img.image_file}}" class="home-my-posts-house-img">
                         {% endfor %}
-                      </div>
-                      {% else %}
-                      {{ form.status(class="form-control") }}
-                      {% endif %}
-                    {{ form.submit(class="btn btn-outline-info ") }}
-                </form>
+                    </div>
+                    <h2>{{ house.bhk }} BHK {{ house.property_type }} for {{ house.post_type }} in {{ house.locality }},
+                        {{
+                        house.city }}</h2>
+                    <p>BHK : {{ house.bhk }}</p>
+                    <p>City : {{ house.city }}</p>
+                    <p>Locality : {{ house.locality }}</p>
+                    <p>Address : {{ house.address }}</p>
+                    <p>Property Type : {{ house.property_type }}</p>
+                    <p>Area : {{ house.area }} Sq.ft</p>
+                    <p>Verified : {{ house.verified }}</p>
+                    <p>Status : {{ house.status }}</p>
+                    {% if house.post_type == 'rent' %}
+                    <p>Rent Per Month : {{ house.value }}</p>
+                    {% else %}
+                    <p>Price : {{ house.value }}</p>
+                    {% endif %}
+                    <p>Posted by {{ house.user.name }}</p>
+                    {% if house.user == current_user %}
+                    <div>
+                        <a class="btn btn-info" href="{{ url_for('posts.update_post', house_id=house.house_id) }}">Update</a>
+                        <button class='btn btn-danger' onclick="myFunction()">Delete</button>
+                        <button class='btn btn' onclick="toggle_display()">Update Status</button>
+                        <div class="update_status_form" style="visibility:hidden; display:none">
+                            <form method="POST" novalidate>
+                                {{ form.hidden_tag() }}
+                                {{ form.status.label }}
+                                {% if form.status.errors %}
+                                {{ form.status(class="form-control form-control-lg is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.status.errors %}
+                                    <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                                {% else %}
+                                {{ form.status(class="form-control") }}
+                                {% endif %}
+                                {{ form.submit(class="btn btn-outline-info ") }}
+                            </form>
+
+                        </div>
+                        <a href="{{ url_for('posts.show_interested_users', house_id=house.house_id) }}">Show interested
+                            users</a>
+                    </div>
+                    {% else %}
+                    <div>
+                        {% if current_user.user_id in house.favourite|map(attribute="user_id")|list %}
+                        <a href="{{url_for('users.add_to_favourites', house_id=house.house_id)}}" class="btn btn-info">Remove
+                            from favourites</a>
+                        {% else %}
+                        <a href="{{url_for('users.add_to_favourites', house_id=house.house_id)}}" class="btn btn-info">Add
+                            to
+                            favourites</a>
+                        {% endif %}
+                    </div>
+                    <a href="{{ url_for('posts.interested_in_house', house_id=house.house_id) }}">Interested in this
+                        house?
+                        Would you like to be contacted by owner?</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            {% if house.user != current_user %}
+            <div class="similar-posts">
+                <h3>Similar Posts</h3>
+                <div class="row">
+                    {% for house in similar_houses %}
+                    <div class="col-md-6">
+                        <label class="list-group-item rounded-3 py-3">
+                            <div class="article-metadata">
+                                <small>Posted by {{ house.user.username }} on {{ house.date_posted.strftime('%Y-%m-%d')
+                                    }}</small>
+                                <span class="like-icon" style="float : right">{{ house.like|length }}
+                        {% if current_user.user_id in house.like|map(attribute="user_id")|list %}
+                        <a href="{{url_for('posts.like_post', house_id=house.house_id)}}"><i
+                                class="bi bi-hand-thumbs-up-fill"></i></a>
+                        {% else %}
+                        <a href="{{url_for('posts.like_post', house_id=house.house_id)}}"><i
+                                class="bi bi-hand-thumbs-up"></i></a>
+                        {% endif %}
+                        </span>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div id="demo" class="carousel slide" data-bs-ride="carousel">
+
+                                        <!-- Indicators/dots -->
+                                        <div class="carousel-indicators">
+                                            <button type="button" data-bs-target="#demo" data-bs-slide-to="0"
+                                                    class="active"></button>
+                                            <button type="button" data-bs-target="#demo" data-bs-slide-to="1"></button>
+                                            <button type="button" data-bs-target="#demo" data-bs-slide-to="2"></button>
+                                        </div>
+
+                                        <!-- The slideshow/carousel -->
+
+                                        <div class="carousel-inner">
+                                            {% for img in images_all %}
+                                            {% if img.house_id == house.house_id %}
+                                            <div class="carousel-item active">
+                                                <img src="{{img.image_file}}" class="d-block home-my-posts-house-img">
+                                            </div>
+                                            {% endif %}
+                                            {% endfor %}
+                                        </div>
+
+                                        <!-- Left and right controls/icons -->
+                                        <button class="carousel-control-prev" type="button" data-bs-target="#demo"
+                                                data-bs-slide="prev">
+                                            <span class="carousel-control-prev-icon"></span>
+                                        </button>
+                                        <button class="carousel-control-next" type="button" data-bs-target="#demo"
+                                                data-bs-slide="next">
+                                            <span class="carousel-control-next-icon"></span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+                                    <h5>{{ house.bhk }} BHK {{ house.property_type }} for {{ house.post_type }} in {{
+                                        house.locality
+                                        }}, {{ house.city }}</h5>
+                                    {% if house.post_type == 'Rent' %}
+                                    <p>Rent Per Month : {{ house.value }}</p>
+                                    {% else %}
+                                    <p>Price : {{ house.value }}</p>
+                                    {% endif %}
+                                    <a href="{{ url_for('posts.house_post', house_id=house.house_id) }}"
+                                       class="btn btn-info">View
+                                        More</a>
+
+                                </div>
+
+                            </div>
+                        </label>
+                    </div>
+                    {% endfor %}
+
+                </div>
 
             </div>
-            <a href="{{ url_for('posts.show_interested_users', house_id=house.house_id) }}">Show interested users</a>
-        </div>
-        {% else %}
-        <div>
-            {% if current_user.user_id in house.favourite|map(attribute="user_id")|list %}
-            <a href="{{url_for('users.add_to_favourites', house_id=house.house_id)}}" class="btn btn-info">Remove from favourites</a>
-            {% else %}
-            <a href="{{url_for('users.add_to_favourites', house_id=house.house_id)}}" class="btn btn-info">Add to favourites</a>
             {% endif %}
         </div>
-        <a href="{{ url_for('posts.interested_in_house', house_id=house.house_id) }}">Interested in this house? Would you like to be contacted by owner?</a>
-        {% endif %}
     </div>
-  </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="comments">
+                <label><h4>Comments</h4></label>
+
+                {% for comment in comments %}
+                <div class="comment">
+                    <span>Commented by {{ comment.user.username }}</span>
+                    {% if comment.user == current_user %}
+                    <a href="{{ url_for('posts.delete_comment', comment_id=comment.comment_id) }}" >delete</a>
+                    {% endif %}
+                    <br>
+                    <p>{{comment.comment_content}}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="col-md-4">
+
+            <form method="POST" action="{{ url_for('posts.add_comment', house_id=house.house_id) }}" novalidate>
+                {{ comment_form.hidden_tag() }}
+                {{ comment_form.comment_content.label }}
+                {% if comment_form.comment_content.errors %}
+                {{ comment_form.comment_content(class="form-control is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in comment_form.comment_content.errors %}
+                    <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+
+                {{ comment_form.comment_content(class="form-control") }}
+                {% endif %}<br>
+
+                {{ comment_form.submit(class="btn btn-outline-info ") }}
+            </form>
+
+        </div>
+
+    </div>
 </div>
 
 <script>
@@ -77,5 +214,11 @@ function toggle_display(){
         el.style.display = 'none'
     }
 }
+
+
+
+
+
+
 </script>
 {% endblock %}
