@@ -9,9 +9,7 @@ import HouseListingSystem.messages as m
 
 
 class RegisterForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired(message=m.enter_username),
-                                                   Length(min=6, max=20,
-                                                          message=m.password_length)])
+    username = StringField('Username', validators=[DataRequired(message=m.enter_username)])
     name = StringField('Name', validators=[DataRequired(message=m.enter_name), Length(min=2, max=25)])
     contact = StringField('Contact no', validators=[DataRequired(message=m.enter_contact), Length(max=10),
                                                     Regexp('[6-9][0-9]{9}', message=m.invalid_contact)])

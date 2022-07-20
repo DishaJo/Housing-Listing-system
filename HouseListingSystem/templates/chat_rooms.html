@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <h3>ROOMS</h3>
+            {% for room in rooms %}
+            <a href="{{url_for('users.chat', room_id = room.room_id)}}">
+            {% if room.user1!=current_user.username %}
+            <p>{{room.user1}}</p>
+            {% else %}
+            <p>{{room.user2}}</p>
+            {% endif %}</a>
+            {% endfor %}
+        </div>
+        <div class="col-md-8">
+            {% block chat %}{% endblock chat %}
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

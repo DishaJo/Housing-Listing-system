@@ -38,7 +38,7 @@ select_city = 'Please Select City'
 enter_locality = 'Please enter locality'
 enter_area = 'Please enter area'
 enter_value = 'Please enter price/rent'
-
+enter_address = 'Please enter address'
 # validations
 # user
 username_taken = 'This username is already taken. Choose different.'

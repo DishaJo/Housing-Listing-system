@@ -63,7 +63,18 @@
                             to
                             favourites</a>
                         {% endif %}
+                        <a href="{{ url_for('users.create_room', username=house.user.username) }}">Message Owner</a>
+                        <span class="like-icon" style="float : right">{{ house.like|length }}
+                        {% if current_user.user_id in house.like|map(attribute="user_id")|list %}
+                        <a href="{{url_for('posts.like_post', house_id=house.house_id)}}"><i
+                                class="bi bi-hand-thumbs-up-fill"></i></a>
+                        {% else %}
+                        <a href="{{url_for('posts.like_post', house_id=house.house_id)}}"><i
+                                class="bi bi-hand-thumbs-up"></i></a>
+                        {% endif %}
+                        </span>
                     </div>
+
                     <a href="{{ url_for('posts.interested_in_house', house_id=house.house_id) }}">Interested in this
                         house?
                         Would you like to be contacted by owner?</a>
@@ -75,14 +86,13 @@
             {% if house.user != current_user %}
             <div class="similar-posts">
                 <h3>Similar Posts</h3>
-                <div class="row">
-                    {% for house in similar_houses %}
-                    <div class="col-md-6">
-                        <label class="list-group-item rounded-3 py-3">
-                            <div class="article-metadata">
-                                <small>Posted by {{ house.user.username }} on {{ house.date_posted.strftime('%Y-%m-%d')
-                                    }}</small>
-                                <span class="like-icon" style="float : right">{{ house.like|length }}
+                {% for house in similar_houses %}
+                <div>
+                    <label class="list-group-item rounded-3 py-3">
+                        <div class="article-metadata">
+                            <small>Posted by {{ house.user.username }} on {{ house.date_posted.strftime('%Y-%m-%d')
+                                }}</small>
+                            <span class="like-icon" style="float : right">{{ house.like|length }}
                         {% if current_user.user_id in house.like|map(attribute="user_id")|list %}
                         <a href="{{url_for('posts.like_post', house_id=house.house_id)}}"><i
                                 class="bi bi-hand-thumbs-up-fill"></i></a>
@@ -91,64 +101,61 @@
                                 class="bi bi-hand-thumbs-up"></i></a>
                         {% endif %}
                         </span>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div id="demo" class="carousel slide" data-bs-ride="carousel">
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div id="demo" class="carousel slide" data-bs-ride="carousel">
 
-                                        <!-- Indicators/dots -->
-                                        <div class="carousel-indicators">
-                                            <button type="button" data-bs-target="#demo" data-bs-slide-to="0"
-                                                    class="active"></button>
-                                            <button type="button" data-bs-target="#demo" data-bs-slide-to="1"></button>
-                                            <button type="button" data-bs-target="#demo" data-bs-slide-to="2"></button>
-                                        </div>
-
-                                        <!-- The slideshow/carousel -->
-
-                                        <div class="carousel-inner">
-                                            {% for img in images_all %}
-                                            {% if img.house_id == house.house_id %}
-                                            <div class="carousel-item active">
-                                                <img src="{{img.image_file}}" class="d-block home-my-posts-house-img">
-                                            </div>
-                                            {% endif %}
-                                            {% endfor %}
-                                        </div>
-
-                                        <!-- Left and right controls/icons -->
-                                        <button class="carousel-control-prev" type="button" data-bs-target="#demo"
-                                                data-bs-slide="prev">
-                                            <span class="carousel-control-prev-icon"></span>
-                                        </button>
-                                        <button class="carousel-control-next" type="button" data-bs-target="#demo"
-                                                data-bs-slide="next">
-                                            <span class="carousel-control-next-icon"></span>
-                                        </button>
+                                    <!-- Indicators/dots -->
+                                    <div class="carousel-indicators">
+                                        <button type="button" data-bs-target="#demo" data-bs-slide-to="0"
+                                                class="active"></button>
+                                        <button type="button" data-bs-target="#demo" data-bs-slide-to="1"></button>
+                                        <button type="button" data-bs-target="#demo" data-bs-slide-to="2"></button>
                                     </div>
-                                </div>
-                                <div class="col-md-8">
-                                    <h5>{{ house.bhk }} BHK {{ house.property_type }} for {{ house.post_type }} in {{
-                                        house.locality
-                                        }}, {{ house.city }}</h5>
-                                    {% if house.post_type == 'Rent' %}
-                                    <p>Rent Per Month : {{ house.value }}</p>
-                                    {% else %}
-                                    <p>Price : {{ house.value }}</p>
-                                    {% endif %}
-                                    <a href="{{ url_for('posts.house_post', house_id=house.house_id) }}"
-                                       class="btn btn-info">View
-                                        More</a>
 
+                                    <!-- The slideshow/carousel -->
+
+                                    <div class="carousel-inner">
+                                        {% for img in images_all %}
+                                        {% if img.house_id == house.house_id %}
+                                        <div class="carousel-item active">
+                                            <img src="{{img.image_file}}" class="d-block home-my-posts-house-img">
+                                        </div>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </div>
+
+                                    <!-- Left and right controls/icons -->
+                                    <button class="carousel-control-prev" type="button" data-bs-target="#demo"
+                                            data-bs-slide="prev">
+                                        <span class="carousel-control-prev-icon"></span>
+                                    </button>
+                                    <button class="carousel-control-next" type="button" data-bs-target="#demo"
+                                            data-bs-slide="next">
+                                        <span class="carousel-control-next-icon"></span>
+                                    </button>
                                 </div>
+                            </div>
+                            <div class="col-md-8">
+                                <h5>{{ house.bhk }} BHK {{ house.property_type }} for {{ house.post_type }} in {{
+                                    house.locality
+                                    }}, {{ house.city }}</h5>
+                                {% if house.post_type == 'Rent' %}
+                                <p>Rent Per Month : {{ house.value }}</p>
+                                {% else %}
+                                <p>Price : {{ house.value }}</p>
+                                {% endif %}
+                                <a href="{{ url_for('posts.house_post', house_id=house.house_id) }}"
+                                   class="btn btn-info">View
+                                    More</a>
 
                             </div>
-                        </label>
-                    </div>
-                    {% endfor %}
 
+                        </div>
+                    </label>
                 </div>
-
+                {% endfor %}
             </div>
             {% endif %}
         </div>
@@ -162,7 +169,7 @@
                 <div class="comment">
                     <span>Commented by {{ comment.user.username }}</span>
                     {% if comment.user == current_user %}
-                    <a href="{{ url_for('posts.delete_comment', comment_id=comment.comment_id) }}" >delete</a>
+                    <a href="{{ url_for('posts.delete_comment', comment_id=comment.comment_id) }}">delete</a>
                     {% endif %}
                     <br>
                     <p>{{comment.comment_content}}</p>
@@ -214,6 +221,7 @@ function toggle_display(){
         el.style.display = 'none'
     }
 }
+
 
 
 

@@ -1,73 +1,158 @@
 {% extends "layout.html" %}
 {% block content %}
-<div class="container">
-    <div class="col-md-8">
-        {% for house in results.items %}
-        <div class="list-group list-group d-grid gap-2 border-0 w-auto posts">
-
-            <label class="list-group-item rounded-3 py-3">
-                <div class="article-metadata">
-                    <img src="{{house.user.profile}}" class="user-profile-in-post">
-                    <small>Posted by {{ house.user.username }} on {{ house.date_posted.strftime('%Y-%m-%d') }}</small>
-                    <span class="like-icon" style="float : right">{{ house.like|length }}
-                    {% if current_user.user_id in house.like|map(attribute="user_id")|list %}
-                    <a href="{{url_for('posts.like_post', house_id=house.house_id)}}"><i class="bi bi-hand-thumbs-up-fill"></i></a>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-2">
+            <form method="POST"
+                  novalidate>
+                {{ filter_form.hidden_tag() }}
+                <fieldset class="form-group">
+                    {{ filter_form.post_type.label }}
+                    {% if filter_form.post_type.errors %}
+                    {{ filter_form.post_type(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in filter_form.post_type.errors %}
+                        <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
                     {% else %}
-                    <a href="{{url_for('posts.like_post', house_id=house.house_id)}}"><i class="bi bi-hand-thumbs-up"></i></a>
+                    {{ filter_form.post_type(class="form-control") }}
+                    {% endif %}
+                    <br>
+                    {{ filter_form.bhk.label }}
+                    {% if filter_form.bhk.errors %}
+                    {{ filter_form.bhk(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in filter_form.bhk.errors %}
+                        <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ filter_form.bhk(class="form-control") }}
+                    {% endif %}
+
+                    <br>
+                    {{ filter_form.min_value.label }}
+                    {% if filter_form.min_value.errors %}
+                    {{ filter_form.min_value(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in filter_form.min_value.errors %}
+                        <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ filter_form.min_value(class="form-control") }}
+                    {% endif %}
+                    <br>
+                    {{ filter_form.max_value.label }}
+                    {% if filter_form.max_value.errors %}
+                    {{ filter_form.max_value(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in filter_form.max_value.errors %}
+                        <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ filter_form.max_value(class="form-control") }}
+                    {% endif %}
+                    <br>
+                    {{ filter_form.property_type.label }}
+                    {% if filter_form.property_type.errors %}
+                    {{ filter_form.property_type(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in filter_form.property_type.errors %}
+                        <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ filter_form.property_type(class="form-control") }}
+                    {% endif %}
+                    <br>
+                    {{ filter_form.verified.label }}
+                    {{ filter_form.verified }}
+                </fieldset>
+                <br>
+                <div>
+                    {{ filter_form.submit(class="btn btn-outline-info") }}
+                </div>
+            </form>
+        </div>
+        <div class="col-md-8">
+            {% for house in results.items %}
+            <div class="list-group list-group d-grid gap-2 border-0 w-auto posts">
+
+                <label class="list-group-item rounded-3 py-3">
+                    <div class="article-metadata">
+                        <img src="{{house.user.profile}}" class="user-profile-in-post">
+                        <small>Posted by {{ house.user.username }} on {{ house.date_posted.strftime('%Y-%m-%d')
+                            }}</small>
+                        <span class="like-icon" style="float : right">{{ house.like|length }}
+                    {% if current_user.user_id in house.like|map(attribute="user_id")|list %}
+                    <a href="{{url_for('posts.like_post', house_id=house.house_id)}}"><i
+                            class="bi bi-hand-thumbs-up-fill"></i></a>
+                    {% else %}
+                    <a href="{{url_for('posts.like_post', house_id=house.house_id)}}"><i
+                            class="bi bi-hand-thumbs-up"></i></a>
                     {% endif %}
                     </span>
-                </div>
-                <div class="row">
-                    <div class="col-md-4">
-                        <div id="demo" class="carousel slide" data-bs-ride="carousel">
-                        <!-- The slideshow/carousel -->
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div id="demo" class="carousel slide" data-bs-ride="carousel">
+                                <!-- The slideshow/carousel -->
 
-                              <div class="carousel-inner">
-                              {% for img in images %}
-                              {% if img.house_id == house.house_id %}
-                                <div class="carousel-item active">
-                                  <img src="{{img.image_file}}" class="d-block home-my-posts-house-img">
+                                <div class="carousel-inner">
+                                    {% for img in images %}
+                                    {% if img.house_id == house.house_id %}
+                                    <div class="carousel-item active">
+                                        <img src="{{img.image_file}}" class="d-block home-my-posts-house-img">
+                                    </div>
+                                    {% endif %}
+                                    {% endfor %}
                                 </div>
-                              {% endif %}
-                              {% endfor %}
-                              </div>
 
-                              <!-- Left and right controls/icons -->
-                              <button class="carousel-control-prev" type="button" data-bs-target="#demo" data-bs-slide="prev">
-                                <span class="carousel-control-prev-icon"></span>
-                              </button>
-                              <button class="carousel-control-next" type="button" data-bs-target="#demo" data-bs-slide="next">
-                                <span class="carousel-control-next-icon"></span>
-                              </button>
+                                <!-- Left and right controls/icons -->
+                                <button class="carousel-control-prev" type="button" data-bs-target="#demo"
+                                        data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon"></span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#demo"
+                                        data-bs-slide="next">
+                                    <span class="carousel-control-next-icon"></span>
+                                </button>
+                            </div>
+
                         </div>
+                        <div class="col-md-8">
+                            <h5>{{ house.bhk }} BHK {{ house.property_type }} for {{ house.post_type }} in {{
+                                house.locality }}, {{ house.city }}</h5>
+                            {% if house.post_type == 'rent' %}
+                            <p>Rent Per Month : {{ house.value }}</p>
+                            {% else %}
+                            <p>Price : {{ house.value }}</p>
+                            {% endif %}
+                            <a href="{{ url_for('posts.house_post', house_id=house.house_id) }}" class="btn btn-info">View
+                                More</a>
 
+                        </div>
                     </div>
-                    <div class="col-md-8">
-                        <h5>{{ house.bhk }} BHK {{ house.property_type }} for {{ house.post_type }} in {{ house.locality }}, {{ house.city }}</h5>
-                        {% if house.post_type == 'rent' %}
-                        <p>Rent Per Month : {{ house.value }}</p>
-                        {% else %}
-                        <p>Price : {{ house.value }}</p>
-                        {% endif %}
-                        <a href="{{ url_for('posts.house_post', house_id=house.house_id) }}" class="btn btn-info">View More</a>
+                </label>
+            </div>
+            <br>
 
-                    </div>
-                </div>
-            </label>
+            {% endfor %}
+            {% for page_num in results.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+            {% if page_num %}
+            {% if results.page == page_num %}
+            <a class="btn btn-info mb-4" href="{{ url_for('main.home', page=page_num) }}">{{ page_num }}</a>
+            {% else %}
+            <a class="btn btn-outline-info mb-4" href="{{ url_for('main.home', page=page_num) }}">{{ page_num }}</a>
+            {% endif %}
+            {% else %}
+            ...
+            {% endif %}
+            {% endfor %}
         </div>
-        <br>
-        {% endfor %}
     </div>
-    {% for page_num in results.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
-      {% if page_num %}
-        {% if results.page == page_num %}
-          <a class="btn btn-info mb-4" href="{{ url_for('main.home', page=page_num) }}">{{ page_num }}</a>
-        {% else %}
-          <a class="btn btn-outline-info mb-4" href="{{ url_for('main.home', page=page_num) }}">{{ page_num }}</a>
-        {% endif %}
-      {% else %}
-        ...
-      {% endif %}
-    {% endfor %}
 </div>
 {% endblock content %}

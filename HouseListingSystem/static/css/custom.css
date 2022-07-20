@@ -51,3 +51,7 @@
     border : 1px solid black;
     border-radius : 15px;
 }
+
+#chat-section span{
+    font-size : 5px;
+}

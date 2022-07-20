@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+
+    {% if notifications %}
+    <a href="{{ url_for('users.delete_all_notifications') }}" class="btn btn-info">Clear All</a>
+    {% for notification in notifications %}
+
+    <div class="alert alert-info alert-dismissible fade show">
+        {{ notification.text }}
+        <a href="{{ url_for('users.delete_notification', notification_id = notification.notification_id) }}"><button type="button" class="btn-close"></button></a>
+    </div>
+    {% endfor %}
+    {% else %}
+    <h4>No new notifications...</h4>
+    {% endif %}
+</div>
+
+{% endblock content %}

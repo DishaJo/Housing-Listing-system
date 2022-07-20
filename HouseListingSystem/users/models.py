@@ -1,6 +1,7 @@
 from HouseListingSystem import app, db, login_manager
 from flask_login import UserMixin
-from time import time
+from time import time, strftime, localtime
+from datetime import datetime
 import jwt
 
 
@@ -24,7 +25,8 @@ class User(db.Model, UserMixin):
     favourite = db.relationship('Favourite', backref='user', lazy=True, cascade="all, delete-orphan")
     interest = db.relationship('Interest', backref='user', lazy=True, cascade="all, delete-orphan")
     comment = db.relationship('Comment', backref='user', lazy=True, cascade="all, delete-orphan")
-
+    message = db.relationship('Message', backref='user', lazy=True, cascade="all, delete-orphan")
+    notification = db.relationship('Notification', backref='user', lazy=True, cascade="all, delete-orphan")
     def get_id(self):
         return self.user_id
 
@@ -44,3 +46,23 @@ class User(db.Model, UserMixin):
         return User.query.get(user_id)
 
 
+class ChatRoom(db.Model):
+    room_id = db.Column(db.Integer, primary_key=True)
+    user1 = db.Column(db.String(50))  # username of user 1
+    user2 = db.Column(db.String(50))    # username of user2
+    message = db.relationship('Message', backref='chat_room', lazy=True, cascade="all, delete-orphan")
+
+
+class Message(db.Model):
+    message_id = db.Column(db.Integer, primary_key=True)
+    message = db.Column(db.Text)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
+    time_stamp = db.Column(db.DateTime)
+    room_id = db.Column(db.Integer, db.ForeignKey('chat_room.room_id'), nullable=False)
+
+
+class Notification(db.Model):
+    notification_id = db.Column(db.Integer, primary_key=True)
+    type = db.Column(db.String)
+    text = db.Column(db.Text)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)

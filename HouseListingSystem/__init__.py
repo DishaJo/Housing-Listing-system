@@ -7,6 +7,7 @@ from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_mail import Mail
 from flask_migrate import Migrate
+from flask_socketio import SocketIO
 import cloudinary
 
 load_dotenv()
@@ -23,6 +24,7 @@ app.config['MAIL_USERNAME'] = os.environ.get('EMAIL_USER')
 app.config['MAIL_PASSWORD'] = os.environ.get('EMAIL_PASSWORD')
 mail = Mail(app)
 migrate = Migrate(app, db)
+socketio = SocketIO(app)
 
 cloudinary.config(
     cloudinary_url=os.environ.get('CLOUDINARY_URL'),

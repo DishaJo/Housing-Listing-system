@@ -11,6 +11,7 @@
             <th scope="col">Email</th>
             <th scope="col">Contact</th>
             <th scope="col">Verified</th>
+            <th scope="col">.</th>
         </tr>
         </thead>
         <tbody>
@@ -21,6 +22,7 @@
             <td>{{ i.user.email }}</td>
             <td>{{ i.user.contact }}</td>
             <td>{{ i.user.verified }}</td>
+            <td><a href="{{ url_for('users.create_room', username=i.user.username) }}">message</a></td>
         </tr>
         {% endfor %}
         </tbody>

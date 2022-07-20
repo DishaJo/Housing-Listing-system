@@ -1,5 +1,6 @@
 from flask import render_template, redirect, flash, url_for, request, abort, Blueprint
 from HouseListingSystem import db, messages
+from HouseListingSystem.users.models import User, Notification
 from HouseListingSystem.posts.models import House, Like, Interest, Images, City, Comment
 from HouseListingSystem.posts.forms import (PostHouseForm, UpdateHouseStatusForm,
                                             SearchForm, FilterForm, CommentForm)
@@ -8,6 +9,8 @@ from HouseListingSystem.posts.utils import send_mail
 import cloudinary.uploader
 import cloudinary.api
 posts = Blueprint('posts', __name__)
+
+admin = User.query.filter_by(is_admin=True).first()
 
 
 @posts.route('/rent-house/<string:post_type>', methods=['GET', 'POST'])
@@ -20,6 +23,10 @@ def post_house(post_type):
                       property_type=form.property_type.data, value=form.value.data, area=form.area.data)
         db.session.add(house)
         db.session.flush()
+        # create notification
+        text = f"New house posted by user : {current_user.username}"
+        notification = Notification(type='new user', text=text, user_id=admin.user_id)
+        db.session.add(notification)
         house_id = house.house_id
         if form.house_image.data:
             images = request.files.getlist('house_image')
@@ -44,7 +51,7 @@ def house_post(house_id):
     comment_form = CommentForm()
     house = House.query.get_or_404(house_id)
     images = Images.query.filter_by(house_id=house.house_id)
-    similar_houses = House.query.filter(House.house_id != house.house_id,House.user != current_user, House.city == house.city, House.locality==house.locality,
+    similar_houses = House.query.filter(House.house_id != house.house_id, House.user != current_user, House.city == house.city, House.locality==house.locality,
                                         House.post_type==house.post_type, House.bhk==house.bhk).limit(2).all()
     images_all = Images.query.all()
     comments = Comment.query.filter_by(house_id=house.house_id).all()
@@ -225,22 +232,14 @@ def searched_results():
         results = House.query.filter(House.user != current_user, (House.city.ilike('%'+searched_word+'%')) |
                                      (House.locality.ilike('%'+searched_word+'%')) | (House.property_type.ilike('%'+searched_word+'%')))
         images = Images.query.all()
+
         return render_template('searched_results.html', form=form, filter_form=filter_form,
                                searched_word=searched_word, results=results, images=images)
+
     return render_template('searched_results.html', form=form, filter_form=filter_form)
 
-# def filter_results(results, filter_form):
-#     if filter_form.post_type.data != '--':
-#         results = results.filter_by(post_type=filter_form.post_type.data)
-#     if filter_form.property_type.data != '--':
-#         results = results.filter_by(property_type=filter_form.property_type.data)
-#     if filter_form.bhk.data != '--':
-#         results = results.filter_by(bhk=filter_form.bhk.data)
-#     if len(filter_form.min_value.data) != 0:
-#         results = results.filter(House.value >= filter_form.min_value.data)
-#     if len(filter_form.min_value.data) != 0:
-#         results
-@posts.route('/filtered-results/<string:searched_word>', methods=['POST', 'GET'])
+
+@posts.route('/filtered-searched-results/<string:searched_word>', methods=['POST', 'GET'])
 @login_required
 def filtered_results(searched_word):
     filter_form = FilterForm()
@@ -294,3 +293,5 @@ def show_interested_users(house_id):
         abort(403)
     results = Interest.query.filter_by(house_id=house.house_id).all()
     return render_template('interested_users.html', title='Interested users', results=results)
+
+

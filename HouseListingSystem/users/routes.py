@@ -1,16 +1,15 @@
 from flask import render_template, redirect, flash, url_for, request, abort, Blueprint
 from flask_login import login_user, current_user, logout_user, login_required
-from HouseListingSystem import db, bcrypt
-from HouseListingSystem.users.models import User
+from flask_socketio import send, join_room, leave_room
+from HouseListingSystem import db, bcrypt, socketio
+from HouseListingSystem.users.models import User, Message, ChatRoom, Notification
 from HouseListingSystem.posts.models import House, Favourite, Images, City
 from HouseListingSystem.users.forms import (RegisterForm, LoginForm, ResetPasswordRequestForm,
                                             ResetPasswordForm, UpdateAccountForm)
-from HouseListingSystem.posts.forms import SearchForm
+from HouseListingSystem.posts.forms import SearchForm, FilterForm
 from HouseListingSystem.users.utils import send_mail
 from HouseListingSystem import messages
-import cloudinary.uploader
-import cloudinary.api
-
+from time import localtime, strftime
 users = Blueprint('users', __name__)
 
 
@@ -19,7 +18,11 @@ def layout():
     # passing search form to navbar in layout
     form = SearchForm()
     cities = City.query.all()
+
     return dict(form=form, cities=cities)
+
+
+admin = User.query.filter_by(is_admin=True).first()
 
 
 @users.route('/register', methods=['GET', 'POST'])
@@ -30,6 +33,13 @@ def register():
         user = User(username=form.username.data, name=form.name.data, contact=form.contact.data, email=form.email.data,
                     password=hashed_password)
         db.session.add(user)
+        db.session.flush()
+
+        # Creating notification
+        text = f"New user registered with username : {form.username.data}"
+        notification = Notification(type='new user', text=text, user_id=admin.user_id)
+        db.session.add(notification)
+
         db.session.commit()
         flash(messages.register_successful, 'success')
         return redirect(url_for('users.login'))
@@ -126,14 +136,30 @@ def delete_account():
     return redirect(url_for('users.register'))
 
 
-@users.route('/my-posts')
+@users.route('/my-posts', methods=['GET', 'POST'])
 @login_required
 def my_posts():
+    filter_form = FilterForm()
     page = request.args.get('page', 1, type=int)
-    results = (House.query.filter_by(user_id=current_user.user_id)
-               .order_by(House.date_posted.desc()).paginate(page=page, per_page=3))
+    results = House.query.filter_by(user_id=current_user.user_id).order_by(House.date_posted.desc())
     images = Images.query.all()
-    return render_template('my_posts.html', title='My Posts', results=results, images=images)
+    if filter_form.validate_on_submit():
+        if filter_form.validate_on_submit():
+            if filter_form.post_type.data != '--':
+                results = results.filter(House.post_type == filter_form.post_type.data)
+            if filter_form.bhk.data != '--':
+                results = results.filter(House.bhk == filter_form.bhk.data)
+            if filter_form.property_type.data != '--':
+                results = results.filter(House.property_type == filter_form.property_type.data)
+
+            if len(filter_form.max_value.data) != 0:
+                results = results.filter(House.value <= filter_form.max_value.data)
+            if len(filter_form.min_value.data) != 0:
+                results = results.filter(House.value >= filter_form.min_value.data)
+            if filter_form.verified:
+                results = results.filter(House.verified == True)
+    results = results.paginate(page=page, per_page=3)
+    return render_template('my_posts.html', title='My Posts', results=results, images=images, filter_form=filter_form)
 
 
 @users.route('/add-to-favourites/<int:house_id>')
@@ -172,6 +198,35 @@ def admin_panel():
         abort(403)
     else:
         return render_template('admin_panel.html', title='Admin Panel')
+
+
+@users.route('/show-notifications')
+@login_required
+def show_notifications():
+    notifications = Notification.query.filter_by(user_id = current_user.user_id).all()
+    return render_template('show_notifications.html', notifications=notifications)
+
+
+@users.route('/delete-notification/<int:notification_id>')
+@login_required
+def delete_notification(notification_id):
+    notification = Notification.query.get_or_404(notification_id)
+    db.session.delete(notification)
+    db.session.commit()
+    return redirect(url_for('users.show_notifications'))
+
+
+@users.route('/delete-all-notifications')
+@login_required
+def delete_all_notifications():
+    notifications = Notification.query.filter_by(user_id=current_user.user_id).all()
+    for i in notifications:
+        db.session.delete(i)
+    db.session.commit()
+    return redirect(url_for('users.show_notifications'))
+
+
+
 
 
 @users.route('/verified-users')
@@ -219,4 +274,51 @@ def verify_user(user_id):
     return render_template('user_detail.html', title='User Detail', user=user)
 
 
+@users.route('/create-room/<string:username>')
+@login_required
+def create_room(username):
+    chat_rooms = ChatRoom.query.filter((ChatRoom.user1 == current_user.username) | (ChatRoom.user2 == current_user.username))
+    chat_room = chat_rooms.filter((ChatRoom.user1 == username) | (ChatRoom.user2 == username)).first()
+    if chat_room:
+        return redirect(url_for('users.chat', room_id=chat_room.room_id))
+    chat_room = ChatRoom(user1=current_user.username, user2=username)
+    db.session.add(chat_room)
+    db.session.commit()
+    return redirect(url_for('users.chat', room_id=chat_room.room_id))
 
+
+@users.route('/chat-rooms', methods=['GET', 'POST'])
+@login_required
+def chat_rooms():
+    rooms = ChatRoom.query.filter((ChatRoom.user1 == current_user.username) | (ChatRoom.user2 == current_user.username)).all()
+    return render_template('chat_rooms.html', username=current_user.username, rooms=rooms)
+
+
+@users.route('/chat/<int:room_id>', methods=['GET', 'POST'])
+@login_required
+def chat(room_id):
+    rooms = ChatRoom.query.filter(
+        (ChatRoom.user1 == current_user.username) | (ChatRoom.user2 == current_user.username)).all()
+    msgs = Message.query.filter_by(room_id=room_id).all()
+    return render_template('chat.html', username=current_user.username, msgs=msgs,rooms=rooms, room_id=room_id)
+
+
+@socketio.on('message')
+def message(data):
+    msg = Message(message=data['message'], user_id=current_user.user_id,
+                  time_stamp=strftime('%Y-%m-%d %H:%M', localtime()), room_id=data['room'])
+    db.session.add(msg)
+    db.session.commit()
+    send({'message': data['message'], 'username': data['username'], 'time_stamp': strftime('%Y-%m-%d %H:%M', localtime())}, room=data['room'] )
+
+
+@socketio.on('join')
+def join(data):
+    join_room(data['room'])
+    # send({'message':data['username']+' has join the room '+data['room']}, room=data['room'])
+
+
+@socketio.on('leave')
+def leave(data):
+    leave_room(data['room'])
+    # send({'message': data['username'] + ' has left the room ' + data['room']}, room=data['room'])
